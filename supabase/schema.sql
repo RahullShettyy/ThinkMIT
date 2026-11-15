@@ -50,6 +50,15 @@ create table public.site_content (
   updated_at  timestamptz not null default now()
 );
 
+create table public.site_content_history (
+  id          uuid primary key default gen_random_uuid(),
+  section     text not null,
+  value       jsonb not null,
+  created_at  timestamptz not null default now()
+);
+create index if not exists site_content_history_section_idx
+  on public.site_content_history (section, created_at desc);
+
 -- updated_at trigger
 create or replace function public.touch_updated_at() returns trigger as $$
 begin new.updated_at = now(); return new; end $$ language plpgsql;
@@ -57,9 +66,10 @@ create trigger teams_touch before update on public.teams
   for each row execute function public.touch_updated_at();
 
 -- Security: lock everything; the app uses the service role on the server only.
-alter table public.teams        enable row level security;
-alter table public.members      enable row level security;
-alter table public.site_content enable row level security;
+alter table public.teams                enable row level security;
+alter table public.members              enable row level security;
+alter table public.site_content         enable row level security;
+alter table public.site_content_history enable row level security;
 -- (No public policies on purpose. Never expose these tables to the anon key.)
 
 -- Atomic registration. Called ONLY from the server (service role).
@@ -92,7 +102,28 @@ begin
 end $$;
 revoke all on function public.register_team(jsonb,text,text) from public, anon, authenticated;
 
--- Storage bucket for uploads (public read)
+-- Storage bucket for uploads (public read, admin-only write)
 insert into storage.buckets (id, name, public) values ('media','media',true)
-on conflict (id) do nothing;
+on conflict (id) do update set public = true;
+
+-- Bucket RLS policies: public read, server service-role/admin write
+drop policy if exists "Public read media" on storage.objects;
+create policy "Public read media"
+  on storage.objects for select
+  using (bucket_id = 'media');
+
+drop policy if exists "Admin write media" on storage.objects;
+create policy "Admin write media"
+  on storage.objects for insert
+  with check (bucket_id = 'media');
+
+drop policy if exists "Admin update media" on storage.objects;
+create policy "Admin update media"
+  on storage.objects for update
+  using (bucket_id = 'media');
+
+drop policy if exists "Admin delete media" on storage.objects;
+create policy "Admin delete media"
+  on storage.objects for delete
+  using (bucket_id = 'media');
 

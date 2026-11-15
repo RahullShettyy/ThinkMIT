@@ -220,10 +220,32 @@ export default function RegistrationsAdminPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          {/* Export dropdown */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Export Format Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--surface)', borderRadius: '8px', border: '1px solid var(--tint)' }}>
+            <select
+              aria-label="Export format"
+              value={exportFormat}
+              onChange={(e) => setExportFormat(e.target.value as 'team' | 'member')}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: '8px 10px',
+                fontSize: '13px',
+                fontWeight: 500,
+                color: 'var(--ink)',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option value="team">Team-wise</option>
+              <option value="member">Member-wise</option>
+            </select>
+          </div>
+
+          {/* Export CSV button */}
           <button
-            onClick={() => handleExportCSV(selectedIds.length > 0 ? 'selected' : 'all')}
+            onClick={() => handleExportCSV(selectedIds.length > 0 ? 'selected' : (query || status || track || programme ? 'filtered' : 'all'))}
             style={{
               padding: '8px 14px',
               borderRadius: '8px',

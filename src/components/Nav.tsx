@@ -10,14 +10,36 @@ export default function Nav({
 }: {
   content: SiteContent;
 }) {
-  const { nav, registration, site } = content;
+  const { nav, registration, site, announcements } = content;
   const regState = getRegistrationState(registration);
 
   const primaryLinks = nav.links.slice(0, 3);
   const fourthLink = nav.links[3] || { label: 'Contact', href: '/#contact' };
 
+  const bannerActive = Boolean((announcements as unknown as Record<string, unknown>)?.bannerEnabled);
+  const bannerText = String((announcements as unknown as Record<string, unknown>)?.bannerText || '');
+
   return (
     <>
+      {bannerActive && bannerText && (
+        <aside
+          role="region"
+          aria-label="Announcement"
+          style={{
+            background: 'var(--ink)',
+            color: '#fff',
+            textAlign: 'center',
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: 500,
+            letterSpacing: '0.01em',
+            position: 'relative',
+            zIndex: 100,
+          }}
+        >
+          {bannerText}
+        </aside>
+      )}
       <header className="nav" id="nav">
         <div className="wrap nav-wrap">
           <nav className="nav-l" aria-label="Main Navigation">

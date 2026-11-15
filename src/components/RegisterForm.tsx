@@ -465,11 +465,13 @@ export default function RegisterForm({
                 id="team_name"
                 name="team_name"
                 type="text"
+                aria-invalid={Boolean(errors.team_name)}
+                aria-describedby={errors.team_name ? 'team_name-error' : undefined}
                 value={formData.team_name}
                 onChange={(e) => setFormData({ ...formData, team_name: e.target.value })}
                 placeholder={form.team.teamName.placeholder}
               />
-              {errors.team_name && <div className="field-error">{errors.team_name}</div>}
+              {errors.team_name && <div id="team_name-error" className="field-error">{errors.team_name}</div>}
             </div>
 
             <div className={`form-group ${errors.track_key ? 'has-error' : ''}`} style={{ marginTop: '24px' }}>

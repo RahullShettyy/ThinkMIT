@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAdminApi } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { getContent } from '@/lib/content';
-import { generateTeamCSV, generateMemberCSV } from '@/lib/csv';
+import { generateTeamCSV, generateMemberCSV, TeamRecord } from '@/lib/csv';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const auth = await requireAdminApi(req);
@@ -14,7 +16,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const format = searchParams.get('format') || 'team';
+  const format = searchParams.get('format') === 'member' ? 'member' : 'team';
   const idsParam = searchParams.get('ids');
   const status = searchParams.get('status') || '';
   const track = searchParams.get('track') || '';
@@ -23,28 +25,51 @@ export async function GET(req: NextRequest) {
   const includeInternal = searchParams.get('internal') === '1' || searchParams.get('internal') === 'true';
 
   try {
-    let query = supabase.from('teams').select('*, members(*)').order('created_at', { ascending: true });
+    const allTeams: TeamRecord[] = [];
+    const batchSize = 1000;
+    let page = 0;
+    let hasMore = true;
 
-    if (idsParam) {
-      const ids = idsParam.split(',').map((id) => id.trim()).filter(Boolean);
-      if (ids.length > 0) {
-        query = query.in('id', ids);
+    // Fetch in batches of 1000 to honour memory and pagination constraints
+    while (hasMore) {
+      let query = supabase
+        .from('teams')
+        .select('*, members(*)')
+        .order('created_at', { ascending: true })
+        .range(page * batchSize, (page + 1) * batchSize - 1);
+
+      if (idsParam) {
+        const ids = idsParam.split(',').map((id) => id.trim()).filter(Boolean);
+        if (ids.length > 0) {
+          query = query.in('id', ids);
+        }
+      } else {
+        if (status) query = query.eq('status', status);
+        if (track) query = query.eq('track_key', track);
       }
-    } else {
-      if (status) query = query.eq('status', status);
-      if (track) query = query.eq('track_key', track);
+
+      const { data, error } = await query;
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+
+      if (!data || data.length === 0) {
+        hasMore = false;
+      } else {
+        allTeams.push(...(data as TeamRecord[]));
+        if (data.length < batchSize) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      }
     }
 
-    const { data: teams, error } = await query;
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    let filtered = teams || [];
+    let filtered = allTeams;
 
     if (programme) {
       filtered = filtered.filter((t) =>
-        t.members?.some((m: { programme?: string }) => m.programme === programme)
+        t.members?.some((m) => m.programme === programme)
       );
     }
 
@@ -56,7 +81,7 @@ export async function GET(req: NextRequest) {
           t.idea_title?.toLowerCase().includes(q);
 
         const memberMatch = t.members?.some(
-          (m: { name?: string; usn?: string; email?: string; phone?: string }) =>
+          (m) =>
             m.name?.toLowerCase().includes(q) ||
             m.usn?.toLowerCase().includes(q) ||
             m.email?.toLowerCase().includes(q) ||
@@ -83,7 +108,7 @@ export async function GET(req: NextRequest) {
       day: '2-digit',
     }).format(now);
 
-    const filename = `think-mit-registrations-${istDate}.csv`;
+    const filename = `thinkmit-registrations-${format}-${istDate}.csv`;
 
     return new NextResponse(csvContent, {
       status: 200,
@@ -98,4 +123,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to export CSV' }, { status: 500 });
   }
 }
-

@@ -30,6 +30,16 @@ async function run() {
   console.log(`[Test 4] Unauthenticated /api/admin/teams/bulk status: ${res4.status} (expected 401)`);
   if (res4.status !== 401) throw new Error(`Expected 401, got ${res4.status}`);
 
+  // 4b. Unauthenticated /api/admin/export -> 401
+  const resExport = await fetch(`${BASE_URL}/api/admin/export`);
+  console.log(`[Test 4b] Unauthenticated /api/admin/export status: ${resExport.status} (expected 401)`);
+  if (resExport.status !== 401) throw new Error(`Expected 401, got ${resExport.status}`);
+
+  // 4c. Unauthenticated /api/admin/content -> 401
+  const resContent = await fetch(`${BASE_URL}/api/admin/content`);
+  console.log(`[Test 4c] Unauthenticated /api/admin/content status: ${resContent.status} (expected 401)`);
+  if (resContent.status !== 401) throw new Error(`Expected 401, got ${resContent.status}`);
+
   // 5. Test UI via Headless Edge / Chrome
   const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
   const browser = await puppeteer.launch({

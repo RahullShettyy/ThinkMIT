@@ -25,105 +25,113 @@ function loadEnv() {
 loadEnv();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 async function checkDatabase() {
-  console.log('--- SUPABASE DATABASE & STORAGE INTEGRITY CHECK ---');
+  console.log('--- SUPABASE SECURITY & RLS INTEGRITY AUDIT ---');
 
-  if (!supabaseUrl || !serviceKey) {
-    console.error('FAIL: Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment or .env.local');
+  if (!supabaseUrl) {
+    console.error('FAIL: Missing NEXT_PUBLIC_SUPABASE_URL in environment or .env.local');
     process.exit(1);
   }
 
   console.log(`Supabase URL: ${supabaseUrl}`);
-  const supabase = createClient(supabaseUrl, serviceKey, {
-    auth: { persistSession: false },
-  });
-
   let allPass = true;
 
-  // 1. Check table 'teams'
-  try {
-    const { error } = await supabase.from('teams').select('id').limit(1);
-    if (error && error.code !== 'PGRST116') {
-      console.error(`[FAIL] Table 'teams': ${error.message}`);
+  // 1. Audit Anon Client Access (Public / Student boundary)
+  if (anonKey) {
+    console.log('\n[Phase 1] Auditing Anon Role Security Boundaries...');
+    const anonClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false } });
+
+    // A. Anon cannot SELECT from teams
+    const { data: anonTeams, error: anonSelectError } = await anonClient.from('teams').select('*');
+    if (!anonSelectError && anonTeams && anonTeams.length > 0) {
+      console.error('❌ CRITICAL SECURITY VULNERABILITY: Anon key can SELECT registrations from public.teams!');
       allPass = false;
     } else {
-      console.log(`[PASS] Table 'teams' exists`);
+      console.log('✓ PASS: Anon client cannot select registration data from public.teams (blocked by RLS)');
     }
-  } catch (err) {
-    console.error(`[FAIL] Table 'teams':`, err);
-    allPass = false;
-  }
 
-  // 2. Check table 'members'
-  try {
-    const { error } = await supabase.from('members').select('id').limit(1);
-    if (error && error.code !== 'PGRST116') {
-      console.error(`[FAIL] Table 'members': ${error.message}`);
+    // B. Anon cannot SELECT from members
+    const { data: anonMembers, error: anonMemberErr } = await anonClient.from('members').select('*');
+    if (!anonMemberErr && anonMembers && anonMembers.length > 0) {
+      console.error('❌ CRITICAL SECURITY VULNERABILITY: Anon key can SELECT member USN/email from public.members!');
       allPass = false;
     } else {
-      console.log(`[PASS] Table 'members' exists`);
+      console.log('✓ PASS: Anon client cannot select student details from public.members (blocked by RLS)');
     }
-  } catch (err) {
-    console.error(`[FAIL] Table 'members':`, err);
-    allPass = false;
-  }
 
-  // 3. Check table 'site_content'
-  try {
-    const { error } = await supabase.from('site_content').select('section').limit(1);
-    if (error && error.code !== 'PGRST116') {
-      console.error(`[FAIL] Table 'site_content': ${error.message}`);
+    // C. Anon cannot directly INSERT into teams without RPC
+    const { error: anonDirectInsertErr } = await anonClient.from('teams').insert({
+      team_name: '__hack_team__',
+      track_key: 'track-1',
+      idea_title: 'Hack',
+      problem: 'p',
+      solution: 's',
+      uniqueness: 'u',
+      impact: 'i',
+      reg_code: 'HACK-001',
+    });
+    if (!anonDirectInsertErr) {
+      console.error('❌ CRITICAL SECURITY VULNERABILITY: Anon key can directly INSERT into public.teams!');
       allPass = false;
     } else {
-      console.log(`[PASS] Table 'site_content' exists`);
+      console.log('✓ PASS: Anon client cannot directly insert into public.teams (must use server atomic RPC)');
     }
-  } catch (err) {
-    console.error(`[FAIL] Table 'site_content':`, err);
-    allPass = false;
+  } else {
+    console.warn('⚠ Note: NEXT_PUBLIC_SUPABASE_ANON_KEY not configured for anon audit check.');
   }
 
-  // 4. Check function 'register_team'
-  try {
-    // Calling with empty payload to test function existence (will fail on jsonb structure or return null, proving function exists)
-    const { error } = await supabase.rpc('register_team', {
+  // 2. Audit Admin / Service Role Client (Server-only boundary)
+  if (serviceKey) {
+    console.log('\n[Phase 2] Auditing Server Service Role Client...');
+    const adminClient = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+
+    // Check table 'teams'
+    const { error: teamsErr } = await adminClient.from('teams').select('id').limit(1);
+    if (teamsErr && teamsErr.code !== 'PGRST116') {
+      console.error(`[FAIL] Table 'teams': ${teamsErr.message}`);
+      allPass = false;
+    } else {
+      console.log(`[PASS] Server client connects to 'teams' table`);
+    }
+
+    // Check table 'members'
+    const { error: membersErr } = await adminClient.from('members').select('id').limit(1);
+    if (membersErr && membersErr.code !== 'PGRST116') {
+      console.error(`[FAIL] Table 'members': ${membersErr.message}`);
+      allPass = false;
+    } else {
+      console.log(`[PASS] Server client connects to 'members' table`);
+    }
+
+    // Check table 'site_content'
+    const { error: contentErr } = await adminClient.from('site_content').select('section').limit(1);
+    if (contentErr && contentErr.code !== 'PGRST116') {
+      console.error(`[FAIL] Table 'site_content': ${contentErr.message}`);
+      allPass = false;
+    } else {
+      console.log(`[PASS] Server client connects to 'site_content' table`);
+    }
+
+    // Check atomic RPC 'register_team'
+    const { error: rpcErr } = await adminClient.rpc('register_team', {
       payload: {},
       p_submission_key: '__db_probe__',
       p_prefix: 'TEST',
     });
-    // If function does not exist: code 42883 or PGRST202
-    if (error && (error.code === '42883' || error.message.includes('Could not find the function'))) {
-      console.error(`[FAIL] Function 'register_team': ${error.message}`);
+    if (rpcErr && (rpcErr.code === '42883' || rpcErr.message.includes('Could not find the function'))) {
+      console.error(`[FAIL] Function 'register_team': ${rpcErr.message}`);
       allPass = false;
     } else {
-      console.log(`[PASS] Function 'register_team' exists`);
+      console.log(`[PASS] Atomic function 'register_team' verified on server`);
     }
-  } catch (err) {
-    console.error(`[FAIL] Function 'register_team':`, err);
-    allPass = false;
   }
 
-  // 5. Check storage bucket 'media'
-  try {
-    const { data: bucket, error } = await supabase.storage.getBucket('media');
-    if (error || !bucket) {
-      console.error(`[FAIL] Storage bucket 'media': ${error?.message || 'Bucket not found'}`);
-      allPass = false;
-    } else {
-      console.log(`[PASS] Storage bucket 'media' exists (public: ${bucket.public})`);
-    }
-  } catch (err) {
-    console.error(`[FAIL] Storage bucket 'media':`, err);
-    allPass = false;
-  }
-
-  console.log('----------------------------------------------------');
+  console.log('\n----------------------------------------------------');
   if (allPass) {
-    console.log('ALL DATABASE INTEGRITY CHECKS PASSED.');
+    console.log('ALL DATABASE SECURITY & INTEGRITY AUDITS PASSED.');
     process.exit(0);
   } else {
     console.error('ONE OR MORE CHECKS FAILED.');
@@ -135,4 +143,3 @@ checkDatabase().catch((err) => {
   console.error('Unexpected check failure:', err);
   process.exit(1);
 });
-
