@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import siteData from '@data';
 
 interface Member {
   id: string;
@@ -56,7 +57,7 @@ export default function RegistrationsAdminPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTeam, setNewTeam] = useState({
     teamName: '',
-    trackKey: 'track-1',
+    trackKey: siteData.tracks[0]?.key || 'waste-to-wealth',
     ideaTitle: '',
     ideaAbstract: '',
     pptUrl: '',
@@ -311,7 +312,7 @@ export default function RegistrationsAdminPage() {
 
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#7a6a5d', textTransform: 'uppercase', marginBottom: '4px' }}>
-              Track
+              Domain
             </label>
             <select
               value={track}
@@ -321,10 +322,10 @@ export default function RegistrationsAdminPage() {
               }}
               style={{ width: '100%', padding: '7px 10px', fontSize: '13px', borderRadius: '8px', border: '1px solid var(--tint)', background: 'var(--surface)' }}
             >
-              <option value="">All Tracks</option>
-              <option value="track-1">Track 1</option>
-              <option value="track-2">Track 2</option>
-              <option value="track-3">Track 3</option>
+              <option value="">All Domains</option>
+              {siteData.tracks.map((t) => (
+                <option key={t.key} value={t.key}>{t.name}</option>
+              ))}
             </select>
           </div>
 
@@ -406,7 +407,7 @@ export default function RegistrationsAdminPage() {
                 </th>
                 <th>Reg ID</th>
                 <th>Team Name</th>
-                <th>Track</th>
+                <th>Domain</th>
                 <th>Team Leader</th>
                 <th>Members</th>
                 <th>Status</th>
@@ -558,15 +559,15 @@ export default function RegistrationsAdminPage() {
               </div>
 
               <div className="form-group" style={{ marginTop: '14px' }}>
-                <label>Track *</label>
+                <label>Domain *</label>
                 <select
                   value={newTeam.trackKey}
                   onChange={(e) => setNewTeam({ ...newTeam, trackKey: e.target.value })}
                   style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--tint)', background: 'var(--surface)' }}
                 >
-                  <option value="track-1">Track 1</option>
-                  <option value="track-2">Track 2</option>
-                  <option value="track-3">Track 3</option>
+                  {siteData.tracks.map((t) => (
+                    <option key={t.key} value={t.key}>{t.name}</option>
+                  ))}
                 </select>
               </div>
 

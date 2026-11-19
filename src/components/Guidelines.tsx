@@ -54,9 +54,14 @@ export default function Guidelines({
           <div className="embed-tracks-grid">
             {tracks.map((t, i) => (
               <div key={t.key || i} className="g-card">
-                <span className="lbl">Track {i + 1}</span>
+                <span className="lbl">{t.key === 'other' ? 'Open Domain' : `Domain ${i + 1}`}</span>
                 <h5>{t.name}</h5>
                 <em>{t.description}</em>
+                {t.focus && (
+                  <div style={{ marginTop: '8px', fontSize: '11.5px', color: '#6a594d', lineHeight: '1.4' }}>
+                    <strong style={{ color: 'var(--ink)' }}>Focus:</strong> {t.focus}
+                  </div>
+                )}
                 {t.room && (
                   <div style={{ marginTop: '8px', fontSize: '11px', color: '#6a594d' }}>
                     <strong>Venue:</strong> {t.room}

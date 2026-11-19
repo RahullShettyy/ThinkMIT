@@ -67,12 +67,30 @@ export default function AboutBento({
               <div>
                 <div className="c-big-foot">
                   <div className="c-big-avatars">
-                    <img src={media.aboutCollageA} alt="" />
-                    <img src={media.aboutCollageB} alt="" />
-                    <img src={media.aboutFundingImage} alt="" />
+                    <img src="/logos/mit-mysore-logo.jpg" alt="MIT Mysore" title="Maharaja Institute of Technology Mysore" />
+                    <a
+                      href="https://www.linkedin.com/company/cse-ai-mitm/posts/?viewAsMember=true"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Department of CSE (AI), MIT Mysore on LinkedIn"
+                      style={{ display: 'inline-block', lineHeight: 0 }}
+                    >
+                      <img src="/logos/cse-ai-logo.jpg" alt="Dept. of CSE-AI" title="Department of CSE (AI)" />
+                    </a>
+                    <img src="/logos/club-association-logo.jpg" alt="Association Club" title="Department Association Club" />
                   </div>
                   <span style={{ fontSize: '11.5px', opacity: 0.9 }}>
-                    {about.cards.big.footnote}
+                    Organised by{' '}
+                    <a
+                      href="https://www.linkedin.com/company/cse-ai-mitm/posts/?viewAsMember=true"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#fff', textDecoration: 'underline', textUnderlineOffset: '2px' }}
+                      title="Department of CSE (AI) on LinkedIn"
+                    >
+                      CSE–AI
+                    </a>{' '}
+                    · IIC · EDC
                   </span>
                 </div>
                 <Link href="/register" className="btn-white">
@@ -87,8 +105,8 @@ export default function AboutBento({
               style={{ '--d': 2 } as React.CSSProperties}
             >
               <div className="collage">
-                <img src={media.aboutCollageA} alt="" />
-                <img src={media.aboutCollageB} alt="" />
+                <img src="/logos/mit-mysore-logo.jpg" alt="MIT Mysore" />
+                <img src="/logos/cse-ai-logo.jpg" alt="CSE-AI Department" />
               </div>
               <div className="txt">
                 <h4>{about.cards.eligibility.title}</h4>

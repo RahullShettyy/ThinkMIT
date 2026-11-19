@@ -92,14 +92,21 @@ html.lenis,html.lenis body{height:auto}
   background:#e3d6c6; transform:translateY(-1px);
 }
 .logo{
-  width:44px; height:44px; display:grid; place-items:center;
+  width:48px; height:48px; display:grid; place-items:center; border-radius:10px; overflow:hidden;
 }
 .logo svg{
   width:40px; height:40px;
   transition:transform .8s var(--ease);
 }
+.logo img{
+  width:44px; height:44px; object-fit:contain; border-radius:8px;
+  transition:transform .4s var(--ease);
+}
 .logo:hover svg{
   transform:rotate(90deg);
+}
+.logo:hover img{
+  transform:scale(1.08);
 }
 .nav-r{
   display:flex; align-items:center; justify-content:flex-end; gap:22px;
@@ -571,11 +578,22 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 
 .s-guide{padding-top:120px}
 .guide-wrap{max-width:960px; margin:40px auto 0}
-.acc-card{margin-bottom:12px; transition:none}
-.acc-card:hover{transform:none; box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 20px 40px -30px rgba(40,30,20,.35)}
+.acc-card{
+  margin-bottom:12px;
+  overflow:hidden !important;
+  transition:border-color .3s var(--ease),box-shadow .3s var(--ease) !important;
+}
+.acc-card:hover{
+  transform:none !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 16px 32px -20px rgba(40,30,20,.25) !important;
+}
 .acc-h{
   width:100%; display:flex; align-items:center; gap:18px; padding:20px 24px;
   background:none; border:0; text-align:left; cursor:pointer;
+  transition:background .2s ease;
+}
+.acc-h:hover{
+  background:rgba(255,255,255,.2);
 }
 .acc-num{
   font-size:13px; letter-spacing:.1em; color:#8d7b6f; min-width:28px;
@@ -594,14 +612,28 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 }
 .acc-h[aria-expanded="true"] .acc-icon svg{transform:rotate(45deg)}
 .acc-panel{
-  display:grid; grid-template-rows:0fr; transition:grid-template-rows .6s var(--ease);
+  display:grid;
+  grid-template-rows:0fr;
+  overflow:hidden;
+  visibility:hidden;
+  transition:grid-template-rows .4s var(--ease), visibility .4s;
 }
-.acc-panel.open{grid-template-rows:1fr}
+.acc-panel.open{
+  grid-template-rows:1fr;
+  visibility:visible;
+}
 .acc-panel-inner{
-  overflow:hidden; padding:0 24px 24px 70px;
+  min-height:0;
+  overflow:hidden;
+  padding:0 24px 0 70px;
+  transition:padding-bottom .4s var(--ease);
+}
+.acc-panel.open .acc-panel-inner{
+  padding-bottom:28px;
 }
 @media (max-width:640px){
-  .acc-panel-inner{padding:0 20px 20px 20px}
+  .acc-panel-inner{padding:0 20px 0 20px}
+  .acc-panel.open .acc-panel-inner{padding-bottom:20px}
 }
 .acc-block-heading{
   font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:#8a7a6e; margin-top:18px;
@@ -620,7 +652,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
   display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px;
 }
 .embed-tracks{margin-top:16px; display:flex; flex-direction:column; gap:12px}
-.embed-tracks-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:10px}
+.embed-tracks-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:10px}
 .embed-eval-table{
   width:100%; margin-top:14px; display:flex; flex-direction:column; gap:8px;
 }
@@ -652,7 +684,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 .cta .media{z-index:-2}
 .cta::before{
   content:""; position:absolute; inset:0; z-index:-1;
-  background:linear-gradient(90deg,rgba(246,240,231,.78) 0%,rgba(246,240,231,.35) 38%,transparent 65%);
+  background:linear-gradient(90deg,rgba(246,240,231,.92) 0%,rgba(246,240,231,.75) 45%,rgba(246,240,231,.2) 75%,transparent 100%);
 }
 .cta p{max-width:340px; margin-top:20px; font-size:14px; color:#3d2e25}
 .cta .btn-dark{margin-top:22px; align-self:flex-start}
@@ -756,7 +788,12 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 }
 .char-count{text-align:right; font-size:11px; color:#8a7a6e; margin-top:4px}
 .char-count.near-limit{color:#b0412c}
-.track-radio-group{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:8px}
+.track-radio-group{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+  gap:14px;
+  margin-top:12px;
+}
 .track-card{
   padding:16px; border-radius:16px; cursor:pointer; border:1px solid var(--glass-b);
   background:rgba(255,255,255,.5); transition:transform .3s var(--ease), border-color .3s var(--ease);

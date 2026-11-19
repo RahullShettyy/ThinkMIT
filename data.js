@@ -35,7 +35,7 @@ const siteData = {
       "Entrepreneurship Development Cell (EDC)",
     ],
     inAssociationWith: "Department of Computer Science and Engineering – Artificial Intelligence (CSE–AI)",
-    logoUrl: null, // null = use the built-in 4-block SVG mark. Or paste an image URL.
+    logoUrl: "/logos/mit-mysore-logo.jpg",
     faviconEmoji: "💡",
     seoTitle: "THINK MIT — Your Idea. Our Campus.",
   },
@@ -89,7 +89,7 @@ const siteData = {
   /* ─────────────────────── 4. FORM LABELS (what students see) ───────────────── */
   form: {
     steps: [
-      { key: "team", title: "Team & Track" },
+      { key: "team", title: "Team & Domain" },
       { key: "members", title: "Team Members" },
       { key: "idea", title: "Your Idea" },
       { key: "review", title: "Review & Submit" },
@@ -97,8 +97,8 @@ const siteData = {
     team: {
       teamName: { label: "Team Name", placeholder: "e.g. Campus Innovators", required: true },
       track: {
-        label: "Track of Interest",
-        help: "Choose the one track your idea fits best.",
+        label: "Domain of Interest",
+        help: "Choose the domain your idea fits best. If your idea does not fit any domain, choose Other.",
         required: true,
       },
     },
@@ -190,15 +190,53 @@ const siteData = {
     },
   ],
 
-  /* ─────────────────────────────── 6. THREE TRACKS ──────────────────────────── */
-  // PLACEHOLDERS — organiser must replace names/descriptions/rooms.
+  /* ─────────────────────────────── 6. FIVE DOMAINS ──────────────────────────── */
   tracks: [
-    { key: "track-1", name: "Track 1 (name TBA)", description: "Description to be announced.", room: "Room TBA" },
-    { key: "track-2", name: "Track 2 (name TBA)", description: "Description to be announced.", room: "Room TBA" },
-    { key: "track-3", name: "Track 3 (name TBA)", description: "Description to be announced.", room: "Room TBA" },
+    {
+      key: "waste-to-wealth",
+      name: "1. Waste to Wealth",
+      description: "Collect, sort, reuse and recycle waste so it saves or earns money.",
+      focus: "Food, plastic, paper, e-waste, medical or chemical waste.",
+      room: null,
+    },
+    {
+      key: "smart-campus",
+      name: "2. Smart Campus",
+      description: "Make everyday college services faster and simpler.",
+      focus: "Queues, apps, bus timings, complaints, attendance and everyday services.",
+      room: null,
+    },
+    {
+      key: "future-tech",
+      name: "3. Future Tech",
+      description: "Frontier technology: space, drones, robotics, AI, IoT and security.",
+      focus: "Space, drones, robotics, AI, IoT, security or other frontier technology.",
+      room: null,
+    },
+    {
+      key: "green-energy-water",
+      name: "4. Green Energy and Water",
+      description: "Use less, make more, waste nothing.",
+      focus: "Power, water, solar, EV charging or saving resources.",
+      room: null,
+    },
+    {
+      key: "care-and-safety",
+      name: "5. Care and Safety",
+      description: "Keep people safe, healthy and included.",
+      focus: "Safety, health, emergencies, hygiene or inclusion.",
+      room: null,
+    },
+    {
+      key: "other",
+      name: "6. Other (Open Domain)",
+      description: "Any other impactful innovation for the campus or society.",
+      focus: "If an idea does not fit any domain, choose Other and explain it.",
+      room: null,
+    },
   ],
   tracksIntro:
-    "Teams are divided into three tracks. Volunteers are assigned to each team and will guide you to your designated room.",
+    "Pick one domain that best matches your idea. If your idea does not fit any domain, choose Other. Screeners can still accept it.",
 
   /* ───────────────────────────────── 7. HERO ───────────────────────────────── */
   hero: {
@@ -392,9 +430,9 @@ const siteData = {
         blocks: [],
       },
       {
-        key: "tracks-training",
-        title: "Tracks, Training & Event Day",
-        subtitle: "Track allocation, training schedule and event-day instructions",
+        key: "domains-training",
+        title: "Domains, Training & Event Day",
+        subtitle: "Five event domains, training schedule and event-day instructions",
         embed: "tracks",
         blocks: [
           {
@@ -524,10 +562,10 @@ const siteData = {
     ],
     people: [
       { role: "HOD", name: "Dr. Hemanth S. R." },
-      { role: "SWO", name: "Prof. Kishan" },
+      { role: "SWO", name: "Prof. Kishan G S" },
     ],
     email: null, // e.g. "thinkmit@college.edu"; null hides it
-    department: "Department of CSE–AI",
+    department: "Department of CSE-AI",
   },
 
   /* ─────────────────────────────────── 15. CTA BAND ─────────────────────────── */
@@ -555,7 +593,7 @@ const siteData = {
       {
         title: "Organisers",
         links: [
-          { label: "CSE–AI", href: "#" },
+          { label: "CSE–AI", href: "https://www.linkedin.com/company/cse-ai-mitm/posts/?viewAsMember=true" },
           { label: "IIC", href: "#" },
           { label: "EDC", href: "#" },
         ],
@@ -579,7 +617,7 @@ const siteData = {
   // your own event images/videos (paste URLs or upload via Admin -> Media).
   media: {
     heroVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054532_4648c53b-8840-4872-b054-016a86833f5c.mp4",
-    heroPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093821_db49f268-cd69-4ac0-b92b-e0b8a7062322.png",
+    heroPoster: "/images/mit-mysore-campus.jpg",
     heroPanelImage: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_a1b44e43-e95a-41dd-85fb-8206e2bffc83.png",
     aboutVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054543_65a4e3d3-ce77-45a9-8917-60ce35999ea7.mp4",
     aboutPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_8ee49f04-c4b4-4be9-9788-e5f7030697ce.png",
@@ -593,8 +631,8 @@ const siteData = {
       "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093821_f31363e6-8c86-4044-ae68-234c89bfd631.png",
       "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_271e56c9-4dd2-4893-ac2d-2ef620eb354e.png",
     ],
-    ctaVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054543_cc94675a-b1cc-47a8-8843-c55665b0f33b.mp4",
-    ctaPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_6e4510b1-3415-4522-80ef-8d3f9cebcfa5.png",
+    ctaVideo: null,
+    ctaPoster: "/images/mit-mysore-campus.jpg",
   },
 };
 

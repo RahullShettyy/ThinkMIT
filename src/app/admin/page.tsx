@@ -107,7 +107,7 @@ export default function AdminDashboardPage() {
         <div className="admin-stat-card">
           <div className="admin-stat-title">Total Teams</div>
           <div className="admin-stat-value">{stats.total}</div>
-          <div className="admin-stat-sub">Across all tracks</div>
+          <div className="admin-stat-sub">Across all domains</div>
         </div>
         <div className="admin-stat-card">
           <div className="admin-stat-title">Shortlisted</div>
@@ -167,7 +167,7 @@ export default function AdminDashboardPage() {
 
         {/* Track distribution breakdown */}
         <div className="admin-card" style={{ marginBottom: 0 }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '20px' }}>Track Breakdown</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '20px' }}>Domain Breakdown</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {Object.entries(stats.byTrack).map(([trackKey, count]) => {
               const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
@@ -211,7 +211,7 @@ export default function AdminDashboardPage() {
               <tr>
                 <th>Reg ID</th>
                 <th>Team Name</th>
-                <th>Track</th>
+                <th>Domain</th>
                 <th>Status</th>
                 <th>Submitted</th>
                 <th>Action</th>

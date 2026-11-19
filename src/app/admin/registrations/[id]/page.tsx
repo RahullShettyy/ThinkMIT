@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import siteData from '@data';
 
 interface Member {
   id: string;
@@ -267,15 +268,15 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
             </div>
 
             <div className="form-group">
-              <label>Track</label>
+              <label>Domain</label>
               <select
                 value={trackKey}
                 onChange={(e) => setTrackKey(e.target.value)}
                 style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--tint)', background: 'var(--surface)' }}
               >
-                <option value="track-1">Track 1</option>
-                <option value="track-2">Track 2</option>
-                <option value="track-3">Track 3</option>
+                {siteData.tracks.map((t) => (
+                  <option key={t.key} value={t.key}>{t.name}</option>
+                ))}
               </select>
             </div>
           </div>

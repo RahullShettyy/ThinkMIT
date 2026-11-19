@@ -76,7 +76,7 @@ export function buildRegistrationSchema(content: SiteContent) {
         .min(val.teamNameMin || 3, `Team name must be at least ${val.teamNameMin || 3} characters`)
         .max(val.teamNameMax || 40, `Team name must be at most ${val.teamNameMax || 40} characters`),
       track_key: z.enum(trackKeys, {
-        errorMap: () => ({ message: 'Please select a valid track' }),
+        errorMap: () => ({ message: 'Please select a valid domain' }),
       }),
       members: z
         .array(memberSchema)

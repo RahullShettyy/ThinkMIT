@@ -13,24 +13,10 @@ export default function CtaBand({
 
   return (
     <div className="cta rv rv-scale" style={{ marginTop: '40px' }}>
-      {media.ctaVideo && (
-        <video
-          className="media"
-          id="v-cta"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          data-src={media.ctaVideo}
-          poster={media.ctaPoster}
-        ></video>
-      )}
       <img
         className="media kb"
-        data-fallback="v-cta"
-        src={media.ctaPoster}
-        alt=""
+        src={media.ctaPoster || '/images/mit-mysore-campus.jpg'}
+        alt="Maharaja Institute of Technology Mysore Campus"
       />
 
       <h2 className="split" data-split>

@@ -50,11 +50,13 @@ export default function Nav({
             ))}
           </nav>
 
-          <Link href="/" className="logo" aria-label={site.name}>
-            <svg viewBox="0 0 40 40" fill="#2a1a12">
-              <path d="M5 5h13v13H5zM22 22h13v13H22z" />
-              <path d="M22 5a13 13 0 0 1 13 13H22zM18 35A13 13 0 0 1 5 22h13z" />
-            </svg>
+          <Link href="/" className="logo" aria-label={site.name} title="Maharaja Institute of Technology Mysore">
+            <img
+              src="/logos/mit-mysore-logo.jpg"
+              alt="MIT Mysore"
+              width={44}
+              height={44}
+            />
           </Link>
 
           <div className="nav-r">

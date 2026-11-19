@@ -159,7 +159,7 @@ export default function RegisterForm({
         newErrors['team_name'] = `Team name must be between ${val.teamNameMin || 3} and ${val.teamNameMax || 40} characters`;
       }
       if (!formData.track_key) {
-        newErrors['track_key'] = 'Please select a track';
+        newErrors['track_key'] = 'Please select a domain';
       }
     }
 
@@ -267,9 +267,18 @@ export default function RegisterForm({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateStep(3)) return;
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isSubmitting) return;
+
+    // Validate all 4 steps to ensure complete integrity
+    for (let s = 0; s <= 3; s++) {
+      if (!validateStep(s)) {
+        setCurrentStep(s);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
 
     setIsSubmitting(true);
     setErrors({});
@@ -279,7 +288,7 @@ export default function RegisterForm({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-idempotency-key': idempotencyKey,
+          'x-idempotency-key': idempotencyKey || `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
         },
         body: JSON.stringify(formData),
       });
@@ -295,13 +304,15 @@ export default function RegisterForm({
             setCurrentStep(0);
           } else if (errorKeys.some((k) => k.startsWith('members.'))) {
             setCurrentStep(1);
-          } else if (errorKeys.some((k) => k.startsWith('idea_') || k.startsWith('problem') || k.startsWith('solution'))) {
+          } else if (errorKeys.some((k) => k.startsWith('idea_') || k.startsWith('problem') || k.startsWith('solution') || k.startsWith('uniqueness') || k.startsWith('impact') || k.startsWith('reference_link'))) {
             setCurrentStep(2);
           }
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (data.field) {
           setErrors({ [data.field]: data.message || data.error });
           if (data.field === 'team_name') setCurrentStep(0);
           if (data.field.startsWith('members.')) setCurrentStep(1);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
           setErrors({ general: data.error || 'Registration failed. Please check your inputs.' });
         }
@@ -312,6 +323,7 @@ export default function RegisterForm({
       // Success! Clear draft
       localStorage.removeItem(STORAGE_KEY);
       setSubmissionSuccess(data.regCode);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch {
       setErrors({ general: 'Network error submitting registration. Please check your connection.' });
     } finally {
@@ -376,7 +388,7 @@ export default function RegisterForm({
             <span>{formData.team_name}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', padding: '10px 0' }}>
-            <strong>Track:</strong>
+            <strong>Domain:</strong>
             <span>{tracks.find((t) => t.key === formData.track_key)?.name}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', padding: '10px 0' }}>
@@ -452,11 +464,11 @@ export default function RegisterForm({
       )}
 
       <form onSubmit={handleSubmit} className="form-card" noValidate>
-        {/* STEP 1: Team & Track */}
+        {/* STEP 1: Team & Domain */}
         {currentStep === 0 && (
           <div>
             <h3 style={{ fontSize: '20px', fontWeight: 400, marginBottom: '20px' }}>
-              1. Team Name & Track of Interest
+              1. Team Name & Domain of Interest
             </h3>
 
             <div className={`form-group ${errors.team_name ? 'has-error' : ''}`}>
@@ -506,7 +518,12 @@ export default function RegisterForm({
                           </div>
                         )}
                       </div>
-                      <p style={{ fontSize: '12px', color: '#5b4a3f', marginTop: '6px' }}>{t.description}</p>
+                      <p style={{ fontSize: '12.5px', color: '#5b4a3f', marginTop: '6px', lineHeight: '1.4' }}>{t.description}</p>
+                      {t.focus && (
+                        <div style={{ marginTop: '8px', fontSize: '11.5px', color: '#8a7a6e', lineHeight: '1.4' }}>
+                          <strong style={{ color: 'var(--ink)' }}>Focus:</strong> {t.focus}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -821,7 +838,7 @@ export default function RegisterForm({
                 <strong>Name:</strong> {formData.team_name}
               </p>
               <p style={{ fontSize: '14px', marginTop: '4px' }}>
-                <strong>Track:</strong> {selectedTrack?.name}
+                <strong>Domain:</strong> {selectedTrack?.name}
               </p>
             </div>
 
@@ -869,20 +886,38 @@ export default function RegisterForm({
             </div>
 
             {/* Consent checkbox */}
-            <div className="consent-row">
+            <div className={`consent-row ${errors.consent ? 'has-error' : ''}`} style={{ padding: '14px', borderRadius: '14px', background: errors.consent ? 'rgba(200, 85, 61, 0.08)' : 'rgba(255, 255, 255, 0.4)', transition: 'background .2s ease' }}>
               <input
                 id="consent"
                 name="consent"
                 type="checkbox"
                 className="consent-checkbox"
                 checked={formData.consent}
-                onChange={(e) => setFormData({ ...formData, consent: e.target.checked })}
+                onChange={(e) => {
+                  setFormData({ ...formData, consent: e.target.checked });
+                  if (errors.consent) {
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.consent;
+                      return next;
+                    });
+                  }
+                }}
               />
-              <label htmlFor="consent" style={{ fontSize: '13px', color: 'var(--ink-2)', lineHeight: '1.5', cursor: 'pointer' }}>
+              <label htmlFor="consent" style={{ fontSize: '13px', color: 'var(--ink-2)', lineHeight: '1.5', cursor: 'pointer', userSelect: 'none' }}>
                 {registration.consentText}
               </label>
             </div>
-            {errors.consent && <div className="field-error" style={{ marginBottom: '16px' }}>{errors.consent}</div>}
+            {errors.consent && (
+              <div className="field-error" style={{ marginTop: '8px', marginBottom: '16px', fontWeight: 500, fontSize: '13px' }}>
+                ⚠️ {errors.consent}
+              </div>
+            )}
+            {errors.general && (
+              <div className="card" style={{ padding: '14px 18px', marginTop: '16px', marginBottom: '16px', background: '#fdedec', borderColor: '#c8553d', color: '#b0412c', fontSize: '13px', fontWeight: 500 }}>
+                ⚠️ {errors.general}
+              </div>
+            )}
           </div>
         )}
 
@@ -914,7 +949,12 @@ export default function RegisterForm({
               type="submit"
               className="btn-dark"
               disabled={isSubmitting}
-              style={{ minWidth: '160px' }}
+              onClick={handleSubmit}
+              style={{
+                minWidth: '180px',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                opacity: isSubmitting ? 0.7 : 1,
+              }}
             >
               {isSubmitting ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>

@@ -114,11 +114,14 @@ export default function Hero({
                 }
                 return (
                   <div key={idx} className="msg ai">
-                    <div className="ai-ic">
-                      <svg viewBox="0 0 40 40" fill="#2a1a12">
-                        <path d="M5 5h13v13H5zM22 22h13v13H22z" />
-                        <path d="M22 5a13 13 0 0 1 13 13H22zM18 35A13 13 0 0 1 5 22h13z" />
-                      </svg>
+                    <div className="ai-ic" style={{ borderRadius: '6px', overflow: 'hidden' }}>
+                      <img
+                        src="/logos/mit-mysore-logo.jpg"
+                        alt="MIT"
+                        width={28}
+                        height={28}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
                     </div>
                     <div className="ai-t" data-text={msg.text}>
                       <span className="ghost">{msg.text}</span>
