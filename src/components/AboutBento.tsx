@@ -208,8 +208,16 @@ export default function AboutBento({
               className="card c-pad rv"
               style={{ '--d': 5 } as React.CSSProperties}
             >
-              <div className="insight">
-                <img src={media.aboutFundingImage} alt="" />
+              <div className="insight" style={{ background: '#ffffff', minHeight: '170px' }}>
+                <img
+                  src={media.aboutFundingImage || '/logos/funding-implementation-logo.jpg'}
+                  alt="Institution's Innovation Council"
+                  style={{
+                    objectFit: 'contain',
+                    padding: '20px 24px',
+                    background: '#ffffff',
+                  }}
+                />
                 <div className="chip">
                   <div className="chip-dot"></div>
                   <span>{about.cards.funding.chip}</span>

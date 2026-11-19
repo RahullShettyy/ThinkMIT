@@ -651,15 +651,15 @@ const siteData = {
   // Defaults below are the design template's CloudFront placeholders. REPLACE with
   // your own event images/videos (paste URLs or upload via Admin -> Media).
   media: {
-    heroVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054532_4648c53b-8840-4872-b054-016a86833f5c.mp4",
-    heroPoster: "/images/mit-mysore-campus.jpg",
-    heroPanelImage: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_a1b44e43-e95a-41dd-85fb-8206e2bffc83.png",
+    heroVideo: null,
+    heroPoster: "/images/maharaja-institute-campus-panorama.png",
+    heroPanelImage: "/logos/funding-implementation-logo.jpg",
     aboutVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054543_65a4e3d3-ce77-45a9-8917-60ce35999ea7.mp4",
     aboutPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_8ee49f04-c4b4-4be9-9788-e5f7030697ce.png",
     aboutBigCard: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_27269365-10b0-493c-aaeb-f491968d728e.png",
     aboutCollageA: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093821_f31363e6-8c86-4044-ae68-234c89bfd631.png",
     aboutCollageB: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_271e56c9-4dd2-4893-ac2d-2ef620eb354e.png",
-    aboutFundingImage: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_a1b44e43-e95a-41dd-85fb-8206e2bffc83.png",
+    aboutFundingImage: "/logos/funding-implementation-logo.jpg",
     journeyCenterImage: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_09809dd7-6a23-494d-ba2d-1b3181a9dee0.png",
     journeySideImages: [
       "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_27269365-10b0-493c-aaeb-f491968d728e.png",
@@ -667,7 +667,7 @@ const siteData = {
       "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_271e56c9-4dd2-4893-ac2d-2ef620eb354e.png",
     ],
     ctaVideo: null,
-    ctaPoster: "/images/mit-mysore-campus.jpg",
+    ctaPoster: "/images/maharaja-institute-campus-panorama.png",
   },
 };
 

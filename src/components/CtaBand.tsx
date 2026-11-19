@@ -15,7 +15,7 @@ export default function CtaBand({
     <div className="cta rv rv-scale" style={{ marginTop: '40px' }}>
       <img
         className="media kb"
-        src={media.ctaPoster || '/images/mit-mysore-campus.jpg'}
+        src={media.ctaPoster || '/images/maharaja-institute-campus-panorama.png'}
         alt="Maharaja Institute of Technology Mysore Campus"
       />
 

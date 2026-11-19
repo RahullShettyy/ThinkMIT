@@ -80,8 +80,8 @@ export default function Hero({
           <img
             className="media kb"
             data-fallback="v-hero"
-            src={media.heroPoster}
-            alt=""
+            src={media.heroPoster || '/images/maharaja-institute-campus-panorama.png'}
+            alt="Maharaja Institute of Technology Mysore Campus"
           />
 
           <div className="shade"></div>
