@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import type { SiteContent } from '@/lib/content';
 import { getRegistrationState } from '@/lib/registration-state';
+import UploadModal from './UploadModal';
 
 interface MemberData {
   name: string;
@@ -26,6 +27,11 @@ interface FormData {
   uniqueness: string;
   impact: string;
   reference_link: string;
+  ppt_url?: string;
+  ppt_object_key?: string;
+  ppt_filename?: string;
+  ppt_size_bytes?: number;
+  ppt_uploaded_at?: string;
   consent: boolean;
   website: string;
 }
@@ -78,8 +84,18 @@ export default function RegisterForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [idempotencyKey, setIdempotencyKey] = useState('');
+  const [idempotencyKey, setIdempotencyKey] = useState<string>(() => {
+    return `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  });
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
+  const formatFileSize = (bytes?: number): string => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   // Restore draft from localStorage
   useEffect(() => {
@@ -359,15 +375,15 @@ export default function RegisterForm({
   // Success Screen
   if (submissionSuccess) {
     return (
-      <div className="success-card">
-        <div className="success-icon">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="#3b2116" strokeWidth="3">
+      <div className="success-card" style={{ padding: '48px 24px', textAlign: 'center' }}>
+        <div className="success-icon" style={{ margin: '0 auto 20px' }}>
+          <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#2e7d32" strokeWidth="3">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
-        <h2 style={{ fontSize: '28px', fontWeight: 400 }}>{registration.successTitle}</h2>
-        <div className="reg-id-box">
-          <span>{submissionSuccess}</span>
+        <h2 style={{ fontSize: '28px', fontWeight: 500, color: 'var(--ink)' }}>Submitted Successfully!</h2>
+        <div className="reg-id-box" style={{ margin: '20px auto', display: 'inline-flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '18px', fontWeight: 600, letterSpacing: '0.04em' }}>{submissionSuccess}</span>
           <button
             type="button"
             className="pill"
@@ -377,47 +393,14 @@ export default function RegisterForm({
             {copied ? 'Copied!' : 'Copy ID'}
           </button>
         </div>
-        <p style={{ fontSize: '14.5px', color: 'var(--ink-2)', lineHeight: '1.6', maxWidth: '480px', margin: '0 auto' }}>
-          {registration.successMessage}
+        <p style={{ fontSize: '15px', color: 'var(--ink-2)', lineHeight: '1.6', maxWidth: '440px', margin: '0 auto' }}>
+          {registration.successMessage || 'Your team and idea have been submitted. Keep your Registration ID safe.'}
         </p>
 
-        {/* Team Summary */}
-        <div className="card" style={{ marginTop: '28px', padding: '20px', textAlign: 'left', background: 'rgba(255,255,255,.6)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', paddingBottom: '10px' }}>
-            <strong>Team Name:</strong>
-            <span>{formData.team_name}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', padding: '10px 0' }}>
-            <strong>Domain:</strong>
-            <span>{tracks.find((t) => t.key === formData.track_key)?.name}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--line)', padding: '10px 0' }}>
-            <strong>Idea Title:</strong>
-            <span>{formData.idea_title}</span>
-          </div>
-          <div style={{ marginTop: '12px' }}>
-            <strong style={{ display: 'block', marginBottom: '6px' }}>Team Members:</strong>
-            <ul style={{ paddingLeft: '18px', fontSize: '13px', color: 'var(--ink-2)' }}>
-              {formData.members.map((m, idx) => (
-                <li key={idx}>
-                  {m.name} ({m.usn}) — {roles.find((r) => r.key === m.role_key)?.label} {idx === 0 ? '★ Leader' : ''}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '32px' }}>
-          <Link href="/" className="pill">
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+          <Link href="/" className="btn-dark" style={{ minWidth: '160px', textAlign: 'center' }}>
             Back to Home
           </Link>
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="btn-dark"
-          >
-            Print Summary
-          </button>
         </div>
       </div>
     );
@@ -540,7 +523,7 @@ export default function RegisterForm({
               2. Team Members (Exactly 3)
             </h3>
             <p style={{ fontSize: '13px', color: '#6a594d', marginBottom: '20px' }}>
-              Member 1 is designated as the Team Leader. Each member must be assigned a different training stream. Selecting a stream already used automatically swaps with that member.
+              Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. Selecting a role already assigned automatically swaps with that member.
             </p>
 
             {formData.members.map((member, idx) => (
@@ -684,10 +667,10 @@ export default function RegisterForm({
                   )}
                 </div>
 
-                {/* Training Stream selector with auto-swap */}
+                {/* Role / Category selector with auto-swap */}
                 <div style={{ marginTop: '16px' }}>
                   <label style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '.08em', color: '#6a594d', display: 'block', marginBottom: '6px' }}>
-                    {form.member.role.label} (Select 1 of 3 Streams) *
+                    {form.member.role.label} (Select 1 of 3 Roles) *
                   </label>
                   <div className="stream-pills">
                     {roles.map((r) => {
@@ -790,10 +773,123 @@ export default function RegisterForm({
 
             {/* PPT / Pitch Deck Submission Field */}
             <div className={`form-group ${errors.reference_link ? 'has-error' : ''}`} style={{ marginTop: '24px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span>Pitch Deck / PPT Presentation Link (Google Drive / OneDrive / Canva / Slides)</span>
-                <span style={{ fontSize: '11px', color: '#8a7a6e', textTransform: 'none' }}>(Recommended)</span>
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <span>Pitch Deck / PPT Presentation Link</span>
+                  <span style={{ fontSize: '11px', color: '#8a7a6e', textTransform: 'none' }}>(Recommended)</span>
+                </label>
+                {!formData.ppt_object_key && (
+                  <button
+                    type="button"
+                    className="pill"
+                    onClick={() => setIsUploadModalOpen(true)}
+                    style={{
+                      padding: '5px 14px',
+                      fontSize: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: 'rgba(59, 33, 22, 0.08)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload PPT / PDF instead
+                  </button>
+                )}
+              </div>
+
+              {/* Uploaded File Chip (Filebase Private Bucket) */}
+              {formData.ppt_object_key ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
+                    background: '#e8f5e9',
+                    border: '1px solid #a5d6a7',
+                    marginBottom: '14px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                    <div
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: '#2e7d32',
+                        color: '#fff',
+                        display: 'grid',
+                        placeItems: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '13.5px', fontWeight: 600, color: '#1b5e20', wordBreak: 'break-all' }}>
+                        Uploaded: {formData.ppt_filename || 'pitch-deck'} ✓
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: '#2e7d32', marginTop: '2px' }}>
+                        {formatFileSize(formData.ppt_size_bytes)} · Stored securely in competition vault
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      type="button"
+                      className="pill"
+                      onClick={() => setIsUploadModalOpen(true)}
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '11.5px',
+                        background: '#fff',
+                        borderColor: '#a5d6a7',
+                        color: '#1b5e20',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Replace
+                    </button>
+                    <button
+                      type="button"
+                      className="pill"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          ppt_object_key: undefined,
+                          ppt_filename: undefined,
+                          ppt_size_bytes: undefined,
+                          ppt_uploaded_at: undefined,
+                          ppt_url: undefined,
+                        }))
+                      }
+                      style={{
+                        padding: '4px 12px',
+                        fontSize: '11.5px',
+                        background: '#fff',
+                        borderColor: '#e57373',
+                        color: '#c62828',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
               <input
                 name="reference_link"
                 type="url"
@@ -802,7 +898,7 @@ export default function RegisterForm({
                 onChange={(e) => setFormData({ ...formData, reference_link: e.target.value })}
               />
               <p style={{ fontSize: '12px', color: '#6a594d', marginTop: '6px' }}>
-                Upload your PPT/slides to Google Drive, OneDrive, or Canva and paste the link here. Ensure permissions are set to <em>&quot;Anyone with the link can view&quot;</em>.
+                Upload your pitch deck file directly (.ppt, .pptx, .pdf up to 25 MB) OR paste a shareable presentation link (Google Drive, OneDrive, Canva, etc. set to <em>&quot;Anyone with the link can view&quot;</em>).
               </p>
               {errors.reference_link && <div className="field-error">{errors.reference_link}</div>}
             </div>
@@ -853,7 +949,7 @@ export default function RegisterForm({
                 <div key={idx} style={{ padding: '8px 0', borderBottom: idx < 2 ? '1px solid var(--line)' : 'none', fontSize: '13px' }}>
                   <strong>{form.memberTitles[idx]}:</strong> {m.name || 'Not provided'} ({m.usn}) · {m.email} · {m.phone}
                   <div style={{ color: '#8a7a6e', marginTop: '2px' }}>
-                    Stream: {roles.find((r) => r.key === m.role_key)?.label} · {m.programme} {m.year ? `(${m.year})` : ''} {m.department ? `· ${m.department}` : ''}
+                    Role: {roles.find((r) => r.key === m.role_key)?.label} · {m.programme} {m.year ? `(${m.year})` : ''} {m.department ? `· ${m.department}` : ''}
                   </div>
                 </div>
               ))}
@@ -875,9 +971,19 @@ export default function RegisterForm({
               <p style={{ fontSize: '13px', color: '#5b4a3f', marginTop: '6px' }}>
                 <strong>Solution:</strong> {formData.solution.slice(0, 180)}...
               </p>
+              {formData.ppt_filename && (
+                <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#1b5e20' }}>
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>
+                    <strong>Pitch Deck File:</strong> {formData.ppt_filename} ({formatFileSize(formData.ppt_size_bytes)}) ✓ Uploaded
+                  </span>
+                </div>
+              )}
               {formData.reference_link && (
                 <p style={{ fontSize: '13px', marginTop: '8px' }}>
-                  <strong>PPT / Pitch Deck:</strong>{' '}
+                  <strong>Presentation Link:</strong>{' '}
                   <a href={formData.reference_link} target="_blank" rel="noopener noreferrer" style={{ color: '#d4612f' }}>
                     {formData.reference_link}
                   </a>
@@ -977,6 +1083,22 @@ export default function RegisterForm({
           )}
         </div>
       </form>
+
+      {/* Direct Filebase PPT/PDF Upload Dialog */}
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        identifier={idempotencyKey || formData.team_name}
+        onUploadSuccess={({ objectKey, filename, size }) => {
+          setFormData((prev) => ({
+            ...prev,
+            ppt_object_key: objectKey,
+            ppt_filename: filename,
+            ppt_size_bytes: size,
+            ppt_uploaded_at: new Date().toISOString(),
+          }));
+        }}
+      />
     </div>
   );
 }

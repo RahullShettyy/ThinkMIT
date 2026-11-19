@@ -24,8 +24,17 @@ interface TeamDetail {
   team_name: string;
   track_key: string;
   idea_title: string;
-  idea_abstract: string;
+  idea_abstract?: string;
+  problem?: string;
+  solution?: string;
+  uniqueness?: string;
+  impact?: string;
+  reference_link?: string;
   ppt_url?: string;
+  ppt_object_key?: string;
+  ppt_filename?: string;
+  ppt_size_bytes?: number;
+  ppt_uploaded_at?: string;
   status: string;
   score: number | null;
   internal_notes: string | null;
@@ -52,6 +61,23 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const [ideaAbstract, setIdeaAbstract] = useState('');
   const [pptUrl, setPptUrl] = useState('');
   const [members, setMembers] = useState<Member[]>([]);
+  const [downloadingPpt, setDownloadingPpt] = useState(false);
+
+  const handleDownloadDeck = async (key: string) => {
+    try {
+      setDownloadingPpt(true);
+      const res = await fetch(`/api/admin/ppt-url?key=${encodeURIComponent(key)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to generate download URL');
+      }
+      window.open(data.downloadUrl, '_blank');
+    } catch (err: any) {
+      alert(err.message || 'Error opening pitch deck');
+    } finally {
+      setDownloadingPpt(false);
+    }
+  };
 
   useEffect(() => {
     const fetchTeam = async () => {
@@ -300,6 +326,63 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
               required
             />
           </div>
+
+          {/* Uploaded Pitch Deck File from Filebase S3 */}
+          {team?.ppt_object_key && (
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '14px 18px',
+                borderRadius: '10px',
+                background: '#f4fbf5',
+                border: '1px solid #c8e6c9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '12px',
+              }}
+            >
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600, color: '#1b5e20', fontSize: '14px' }}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="12" y1="18" x2="12" y2="12" />
+                    <polyline points="9 15 12 12 15 15" />
+                  </svg>
+                  <span>{team.ppt_filename || 'pitch-deck-file'}</span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#388e3c', marginTop: '3px' }}>
+                  {team.ppt_size_bytes ? `${(team.ppt_size_bytes / (1024 * 1024)).toFixed(2)} MB` : ''} · Private Storage ({team.ppt_object_key})
+                  {team.ppt_uploaded_at && ` · Uploaded: ${new Date(team.ppt_uploaded_at).toLocaleString()}`}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="btn-dark"
+                disabled={downloadingPpt}
+                onClick={() => handleDownloadDeck(team.ppt_object_key!)}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '12.5px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: downloadingPpt ? 'not-allowed' : 'pointer',
+                  opacity: downloadingPpt ? 0.7 : 1,
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                {downloadingPpt ? 'Generating Link...' : 'Download Pitch Deck'}
+              </button>
+            </div>
+          )}
 
           <div className="form-group" style={{ marginTop: '16px' }}>
             <label>Pitch Deck / Presentation Link</label>

@@ -13,8 +13,8 @@ export default function Nav({
   const { nav, registration, site, announcements } = content;
   const regState = getRegistrationState(registration);
 
-  const primaryLinks = nav.links.slice(0, 3);
-  const fourthLink = nav.links[3] || { label: 'Contact', href: '/#contact' };
+  const primaryLinks = nav.links.filter((l) => !l.href.includes('contact'));
+  const contactLink = nav.links.find((l) => l.href.includes('contact')) || { label: 'Contact', href: '/#contact' };
 
   const bannerActive = Boolean((announcements as unknown as Record<string, unknown>)?.bannerEnabled);
   const bannerText = String((announcements as unknown as Record<string, unknown>)?.bannerText || '');
@@ -60,8 +60,8 @@ export default function Nav({
           </Link>
 
           <div className="nav-r">
-            <a href={fourthLink.href} className="nav-contact-link">
-              {fourthLink.label}
+            <a href={contactLink.href} className="nav-contact-link">
+              {contactLink.label}
             </a>
 
             {regState.isClosed ? (

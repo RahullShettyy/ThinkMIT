@@ -37,7 +37,7 @@ export default async function UsagePolicyPage() {
               <strong>Eligible Students:</strong> Participation is open to enrolled students of Maharaja Institute of Technology Mysore (MITM) across eligible programs (UG 2nd, 3rd, 4th Year, MBA, and MCA).
             </li>
             <li>
-              <strong>Team Structure:</strong> Every team must consist of <strong>exactly three members</strong>. Cross-department teams are encouraged. Each member must be assigned a distinct training stream (Business Lead, Innovation Lead, and Technical Lead).
+              <strong>Team Structure:</strong> Every team must consist of <strong>exactly three members</strong>. Cross-department teams are encouraged. Each member represents a distinct presentation category (Business Lead, Innovation Lead, and Technical Lead).
             </li>
             <li>
               <strong>Accuracy of Records:</strong> Team details—including full name, USN, college email, and contact number—must accurately reflect official institutional records. Duplicate registrations across multiple teams are automatically rejected.

@@ -82,12 +82,19 @@ async function fetchMergedContent(): Promise<SiteContent> {
   }
 }
 
-export const getContent = unstable_cache(
+const cachedGetContent = unstable_cache(
   async (): Promise<SiteContent> => {
     return fetchMergedContent();
   },
   ['site-content'],
   { tags: ['site-content'] }
 );
+
+export const getContent = async (): Promise<SiteContent> => {
+  if (process.env.NODE_ENV === 'development') {
+    return fetchMergedContent();
+  }
+  return cachedGetContent();
+};
 
 export default getContent;

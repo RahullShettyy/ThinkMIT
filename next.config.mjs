@@ -18,7 +18,7 @@ const nextConfig = {
       "img-src 'self' data: blob: https:",
       "media-src 'self' blob: https:",
       "frame-src 'self' https://www.youtube-nocookie.com https://player.vimeo.com",
-      "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.cloudfront.net",
+      "connect-src 'self' https://*.supabase.co https://*.supabase.in https://*.cloudfront.net https://s3.filebase.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -18,6 +18,11 @@ create table public.teams (
   uniqueness       text not null,
   impact           text not null,
   reference_link   text,
+  ppt_url          text,
+  ppt_object_key   text,
+  ppt_filename     text,
+  ppt_size_bytes   bigint,
+  ppt_uploaded_at  timestamptz,
   status           team_status not null default 'submitted',
   score            numeric(5,2),
   admin_notes      text,
@@ -25,6 +30,8 @@ create table public.teams (
   updated_at       timestamptz not null default now()
 );
 create unique index teams_name_uq on public.teams (lower(team_name));
+create index if not exists teams_ppt_object_key_idx on public.teams (ppt_object_key)
+  where ppt_object_key is not null;
 
 create table public.members (
   id          uuid primary key default gen_random_uuid(),
@@ -84,11 +91,44 @@ begin
 
   v_code := p_prefix || '-' || lpad(nextval('team_reg_seq')::text, 4, '0');
 
-  insert into teams (reg_code, submission_key, team_name, track_key, idea_title,
-                     problem, solution, uniqueness, impact, reference_link)
-  values (v_code, p_submission_key, payload->>'team_name', payload->>'track_key',
-          payload->>'idea_title', payload->>'problem', payload->>'solution',
-          payload->>'uniqueness', payload->>'impact', nullif(payload->>'reference_link',''))
+  insert into teams (
+    reg_code,
+    submission_key,
+    team_name,
+    track_key,
+    idea_title,
+    problem,
+    solution,
+    uniqueness,
+    impact,
+    reference_link,
+    ppt_url,
+    ppt_object_key,
+    ppt_filename,
+    ppt_size_bytes,
+    ppt_uploaded_at
+  )
+  values (
+    v_code,
+    p_submission_key,
+    payload->>'team_name',
+    payload->>'track_key',
+    payload->>'idea_title',
+    payload->>'problem',
+    payload->>'solution',
+    payload->>'uniqueness',
+    payload->>'impact',
+    nullif(payload->>'reference_link',''),
+    nullif(payload->>'ppt_url',''),
+    nullif(payload->>'ppt_object_key',''),
+    nullif(payload->>'ppt_filename',''),
+    case when (payload->>'ppt_size_bytes') is not null and (payload->>'ppt_size_bytes') != ''
+         then (payload->>'ppt_size_bytes')::bigint
+         else null end,
+    case when (payload->>'ppt_uploaded_at') is not null and (payload->>'ppt_uploaded_at') != ''
+         then (payload->>'ppt_uploaded_at')::timestamptz
+         else null end
+  )
   returning id into v_team_id;
 
   for m in select * from jsonb_array_elements(payload->'members') loop

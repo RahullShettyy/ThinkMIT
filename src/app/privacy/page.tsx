@@ -15,7 +15,7 @@ export default async function PrivacyPage() {
           {content.site.name} is organized by {content.site.inAssociationWith} in collaboration with {content.site.organisedBy.join(' and ')}.
         </p>
         <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--ink-2)', marginTop: '16px' }}>
-          <strong>Data Usage:</strong> All registration details submitted—including student names, USNs, email addresses, contact numbers, and idea submissions—are collected solely for event administration, verification, training coordination, and evaluation purposes.
+          <strong>Data Usage:</strong> All registration details submitted—including student names, USNs, email addresses, contact numbers, and idea submissions—are collected solely for event administration, verification, event coordination, and jury evaluation purposes.
         </p>
         <p style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--ink-2)', marginTop: '16px' }}>
           <strong>Privacy Guarantee:</strong> Personal contact information (USN, phone number, email) is kept confidential and is never shared publicly or disclosed on any public-facing leaderboard or page. Only shortlisted team names and track categories are announced publicly.

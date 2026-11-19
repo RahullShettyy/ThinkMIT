@@ -94,6 +94,11 @@ export async function POST(req: NextRequest) {
       uniqueness: sanitizeText(validData.uniqueness),
       impact: sanitizeText(validData.impact),
       reference_link: validData.reference_link ? sanitizeText(validData.reference_link) : '',
+      ppt_url: validData.ppt_url ? sanitizeText(validData.ppt_url) : null,
+      ppt_object_key: validData.ppt_object_key ? sanitizeText(validData.ppt_object_key) : null,
+      ppt_filename: validData.ppt_filename ? sanitizeText(validData.ppt_filename) : null,
+      ppt_size_bytes: validData.ppt_size_bytes || null,
+      ppt_uploaded_at: validData.ppt_uploaded_at ? sanitizeText(validData.ppt_uploaded_at) : null,
       members: validData.members.map((m) => ({
         name: sanitizeText(m.name),
         usn: sanitizeText(m.usn).toUpperCase(),
@@ -106,11 +111,17 @@ export async function POST(req: NextRequest) {
       })),
     };
 
-    // 6. Idempotency Key
-    const submissionKey =
-      req.headers.get('x-idempotency-key') ||
-      body.submission_key ||
-      `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    // 6. Idempotency Key (matches the prefix number of the uploaded file)
+    let submissionKey = req.headers.get('x-idempotency-key') || body.submission_key;
+    if (!submissionKey && sanitizedPayload.ppt_object_key) {
+      const parts = sanitizedPayload.ppt_object_key.split('/');
+      if (parts.length >= 2 && parts[1].startsWith('sub_')) {
+        submissionKey = parts[1];
+      }
+    }
+    if (!submissionKey) {
+      submissionKey = `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+    }
 
     const prefix = content.registration.regIdPrefix || 'TMIT';
 

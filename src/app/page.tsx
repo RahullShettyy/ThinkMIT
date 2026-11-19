@@ -4,6 +4,7 @@ import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
 import AboutBento from '@/components/AboutBento';
 import Journey from '@/components/Journey';
+import Domains from '@/components/Domains';
 import PromoVideo from '@/components/PromoVideo';
 import Guidelines from '@/components/Guidelines';
 import SelectedTeams, { SelectedTeamItem } from '@/components/SelectedTeams';
@@ -53,6 +54,7 @@ export default async function HomePage() {
         <Hero content={content} />
         <AboutBento content={content} />
         <Journey content={content} />
+        <Domains content={content} />
         <PromoVideo content={content} />
         <Guidelines content={content} />
         <SelectedTeams content={content} teams={selectedTeams} />

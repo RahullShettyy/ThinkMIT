@@ -52,7 +52,7 @@ export function buildRegistrationSchema(content: SiteContent) {
         message: 'Invalid 10-digit mobile number',
       }),
     role_key: z.enum(roleKeys, {
-      errorMap: () => ({ message: 'Invalid training stream selected' }),
+      errorMap: () => ({ message: 'Invalid presentation role selected' }),
     }),
     programme: form.member.programme?.enabled
       ? z.enum(form.programmeOptions as [string, ...string[]], {
@@ -110,17 +110,17 @@ export function buildRegistrationSchema(content: SiteContent) {
             emails.add(e);
           });
 
-          // Check distinct stream roles (3 different streams)
-          const streams = new Set<string>();
+          // Check distinct roles (3 different presentation roles)
+          const assignedRoles = new Set<string>();
           members.forEach((m, idx) => {
-            if (streams.has(m.role_key)) {
+            if (assignedRoles.has(m.role_key)) {
               ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'All three members must choose different streams',
+                message: 'All three members must choose different presentation roles (Business, Innovation, Technical)',
                 path: [idx, 'role_key'],
               });
             }
-            streams.add(m.role_key);
+            assignedRoles.add(m.role_key);
           });
         }),
       idea_title: z
@@ -155,6 +155,17 @@ export function buildRegistrationSchema(content: SiteContent) {
         .refine((val) => !val || /^https?:\/\/.+/i.test(val), {
           message: 'Supporting link must be a valid http(s) URL (e.g. Google Drive, Canva, Figma)',
         }),
+      ppt_url: z.string().trim().optional(),
+      ppt_object_key: z
+        .string()
+        .trim()
+        .optional()
+        .refine((val) => !val || val.startsWith('submissions/'), {
+          message: 'Invalid pitch deck object key',
+        }),
+      ppt_filename: z.string().trim().optional(),
+      ppt_size_bytes: z.number().int().positive().optional(),
+      ppt_uploaded_at: z.string().trim().optional(),
       consent: z.literal(true, {
         errorMap: () => ({ message: 'You must confirm the consent checkbox' }),
       }),

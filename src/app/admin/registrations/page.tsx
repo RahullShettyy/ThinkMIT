@@ -25,6 +25,8 @@ interface Team {
   idea_title: string;
   idea_abstract: string;
   ppt_url?: string;
+  ppt_object_key?: string;
+  ppt_filename?: string;
   status: string;
   score?: number | null;
   internal_notes?: string | null;
@@ -439,7 +441,24 @@ export default function RegistrationsAdminPage() {
                         {t.reg_code}
                       </td>
                       <td>
-                        <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{t.team_name}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{t.team_name}</span>
+                          {t.ppt_object_key && (
+                            <span
+                              title={`Pitch deck uploaded: ${t.ppt_filename || 'file'}`}
+                              style={{
+                                fontSize: '10px',
+                                padding: '1px 6px',
+                                borderRadius: '4px',
+                                background: '#e8f5e9',
+                                color: '#2e7d32',
+                                fontWeight: 600,
+                              }}
+                            >
+                              Deck ✓
+                            </span>
+                          )}
+                        </div>
                         <div style={{ fontSize: '11px', color: '#7a6a5d', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.idea_title}>
                           {t.idea_title}
                         </div>
