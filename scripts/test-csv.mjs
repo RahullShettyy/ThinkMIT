@@ -179,7 +179,7 @@ assert.ok(teamLines[0].includes('Team Name'), 'Header must contain Team Name');
 assert.ok(teamLines[0].includes('Track'), 'Header must contain Track');
 assert.ok(teamLines[0].includes('Status'), 'Header must contain Status');
 assert.ok(teamLines[0].includes('Member 1 Name'), 'Header must contain Member 1 Name');
-assert.ok(teamLines[0].includes('Pitch Deck URL'), 'Header must contain Pitch Deck URL');
+assert.ok(teamLines[0].includes('Submitted At'), 'Header must contain Submitted At');
 
 // Verify formula guard in team data: no unquoted raw =, +, -, @ at the beginning of any cell
 const cells = teamLines[1].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);

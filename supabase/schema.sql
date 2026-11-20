@@ -17,12 +17,6 @@ create table public.teams (
   solution         text not null,
   uniqueness       text not null,
   impact           text not null,
-  reference_link   text,
-  ppt_url          text,
-  ppt_object_key   text,
-  ppt_filename     text,
-  ppt_size_bytes   bigint,
-  ppt_uploaded_at  timestamptz,
   status           team_status not null default 'submitted',
   score            numeric(5,2),
   admin_notes      text,
@@ -30,8 +24,6 @@ create table public.teams (
   updated_at       timestamptz not null default now()
 );
 create unique index teams_name_uq on public.teams (lower(team_name));
-create index if not exists teams_ppt_object_key_idx on public.teams (ppt_object_key)
-  where ppt_object_key is not null;
 
 create table public.members (
   id          uuid primary key default gen_random_uuid(),
@@ -89,7 +81,7 @@ begin
   select reg_code into v_code from teams where submission_key = p_submission_key;
   if v_code is not null then return v_code; end if;
 
-  v_code := p_prefix || '-' || lpad(nextval('team_reg_seq')::text, 4, '0');
+  v_code := case when p_prefix is not null and p_prefix != '' then p_prefix || '-' else '' end || lpad(nextval('team_reg_seq')::text, 3, '0');
 
   insert into teams (
     reg_code,
@@ -100,13 +92,7 @@ begin
     problem,
     solution,
     uniqueness,
-    impact,
-    reference_link,
-    ppt_url,
-    ppt_object_key,
-    ppt_filename,
-    ppt_size_bytes,
-    ppt_uploaded_at
+    impact
   )
   values (
     v_code,
@@ -117,17 +103,7 @@ begin
     payload->>'problem',
     payload->>'solution',
     payload->>'uniqueness',
-    payload->>'impact',
-    nullif(payload->>'reference_link',''),
-    nullif(payload->>'ppt_url',''),
-    nullif(payload->>'ppt_object_key',''),
-    nullif(payload->>'ppt_filename',''),
-    case when (payload->>'ppt_size_bytes') is not null and (payload->>'ppt_size_bytes') != ''
-         then (payload->>'ppt_size_bytes')::bigint
-         else null end,
-    case when (payload->>'ppt_uploaded_at') is not null and (payload->>'ppt_uploaded_at') != ''
-         then (payload->>'ppt_uploaded_at')::timestamptz
-         else null end
+    payload->>'impact'
   )
   returning id into v_team_id;
 
@@ -141,6 +117,7 @@ begin
   return v_code;
 end $$;
 revoke all on function public.register_team(jsonb,text,text) from public, anon, authenticated;
+grant execute on function public.register_team(jsonb,text,text) to service_role;
 
 -- Storage bucket for uploads (public read, admin-only write)
 insert into storage.buckets (id, name, public) values ('media','media',true)

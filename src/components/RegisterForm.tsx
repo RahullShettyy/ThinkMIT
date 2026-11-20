@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import type { SiteContent } from '@/lib/content';
 import { getRegistrationState } from '@/lib/registration-state';
-import UploadModal from './UploadModal';
 
 interface MemberData {
   name: string;
@@ -26,12 +25,6 @@ interface FormData {
   solution: string;
   uniqueness: string;
   impact: string;
-  reference_link: string;
-  ppt_url?: string;
-  ppt_object_key?: string;
-  ppt_filename?: string;
-  ppt_size_bytes?: number;
-  ppt_uploaded_at?: string;
   consent: boolean;
   website: string;
 }
@@ -74,7 +67,6 @@ export default function RegisterForm({
     solution: '',
     uniqueness: '',
     impact: '',
-    reference_link: '',
     consent: false,
     website: '',
   });
@@ -88,87 +80,6 @@ export default function RegisterForm({
     return `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   });
   const [draftLoaded, setDraftLoaded] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-
-  // Inline full-size pitch deck file upload state
-  const [inlineUploading, setInlineUploading] = useState(false);
-  const [inlineProgress, setInlineProgress] = useState(0);
-  const [inlineUploadError, setInlineUploadError] = useState<string | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const inlineFileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleInlineFileSelect = (selectedFile: File) => {
-    setInlineUploadError(null);
-    const ext = '.' + selectedFile.name.split('.').pop()?.toLowerCase();
-    const ALLOWED = ['.ppt', '.pptx', '.pdf'];
-    if (!ALLOWED.includes(ext)) {
-      setInlineUploadError('Invalid file type. Only .ppt, .pptx, or .pdf files are accepted.');
-      return;
-    }
-    const MAX_SIZE = 25 * 1024 * 1024;
-    if (selectedFile.size > MAX_SIZE) {
-      setInlineUploadError(`File is too large (${formatFileSize(selectedFile.size)}). Maximum limit is 25 MB.`);
-      return;
-    }
-
-    setInlineUploading(true);
-    setInlineProgress(10);
-
-    const uploadData = new FormData();
-    uploadData.append('file', selectedFile);
-    if (idempotencyKey) {
-      uploadData.append('identifier', idempotencyKey);
-    }
-
-    const xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = (evt) => {
-      if (evt.lengthComputable) {
-        const pct = 10 + Math.round((evt.loaded / evt.total) * 85);
-        setInlineProgress(Math.min(95, pct));
-      }
-    };
-
-    xhr.onload = () => {
-      setInlineUploading(false);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const res = JSON.parse(xhr.responseText);
-          setInlineProgress(100);
-          setFormData((prev) => ({
-            ...prev,
-            ppt_object_key: res.objectKey,
-            ppt_filename: res.filename || selectedFile.name,
-            ppt_size_bytes: selectedFile.size,
-            ppt_uploaded_at: new Date().toISOString(),
-          }));
-        } catch {
-          setInlineUploadError('Upload succeeded but response could not be parsed.');
-        }
-      } else {
-        let msg = `Upload failed (HTTP ${xhr.status})`;
-        try {
-          const errRes = JSON.parse(xhr.responseText);
-          if (errRes.error) msg = errRes.error;
-        } catch {}
-        setInlineUploadError(msg);
-      }
-    };
-
-    xhr.onerror = () => {
-      setInlineUploading(false);
-      setInlineUploadError('Network error uploading pitch deck. Please check your connection.');
-    };
-
-    xhr.open('POST', '/api/upload', true);
-    xhr.send(uploadData);
-  };
-
-  const formatFileSize = (bytes?: number): string => {
-    if (!bytes) return '';
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
 
   // Restore draft from localStorage
   useEffect(() => {
@@ -320,9 +231,6 @@ export default function RegisterForm({
       } else if (formData.impact.trim().length > limits.impactMax) {
         newErrors['impact'] = `Expected impact exceeds max ${limits.impactMax} characters`;
       }
-      if (formData.reference_link && !/^https?:\/\/.+/i.test(formData.reference_link.trim())) {
-        newErrors['reference_link'] = 'Link must start with http:// or https://';
-      }
     }
 
     if (step === 3) {
@@ -393,7 +301,7 @@ export default function RegisterForm({
             setCurrentStep(0);
           } else if (errorKeys.some((k) => k.startsWith('members.'))) {
             setCurrentStep(1);
-          } else if (errorKeys.some((k) => k.startsWith('idea_') || k.startsWith('problem') || k.startsWith('solution') || k.startsWith('uniqueness') || k.startsWith('impact') || k.startsWith('reference_link'))) {
+          } else if (errorKeys.some((k) => k.startsWith('idea_') || k.startsWith('problem') || k.startsWith('solution') || k.startsWith('uniqueness') || k.startsWith('impact'))) {
             setCurrentStep(2);
           }
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -842,11 +750,11 @@ export default function RegisterForm({
           </div>
         )}
 
-        {/* STEP 3: Your Idea + PPT Submission */}
+        {/* STEP 3: Your Idea */}
         {currentStep === 2 && (
           <div>
             <h3 style={{ fontSize: '20px', fontWeight: 400, marginBottom: '20px' }}>
-              3. Your Campus Idea & PPT Pitch Deck
+              3. Your Campus Idea
             </h3>
 
             <div className={`form-group ${errors.idea_title ? 'has-error' : ''}`}>
@@ -920,248 +828,6 @@ export default function RegisterForm({
               {errors.impact && <div className="field-error">{errors.impact}</div>}
             </div>
 
-            {/* Full-Size Pitch Deck File Upload (replaces drive link holder) */}
-            <div className="form-group" style={{ marginTop: '28px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, fontWeight: 600 }}>
-                  <span>Upload Pitch Deck / Presentation File</span>
-                  <span style={{ fontSize: '11px', color: '#8a7a6e', fontWeight: 400 }}>(Recommended)</span>
-                </label>
-                <span style={{ fontSize: '12px', color: '#8a7a6e' }}>
-                  .ppt, .pptx, or .pdf · Max 25 MB
-                </span>
-              </div>
-
-              {/* Hidden file input */}
-              <input
-                ref={inlineFileInputRef}
-                type="file"
-                accept=".ppt,.pptx,.pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/pdf"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) handleInlineFileSelect(f);
-                }}
-              />
-
-              {/* Case 1: Uploading state */}
-              {inlineUploading ? (
-                <div
-                  style={{
-                    width: '100%',
-                    padding: '32px 24px',
-                    borderRadius: '16px',
-                    background: 'rgba(255, 255, 255, 0.75)',
-                    border: '2px solid var(--tint)',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink)', marginBottom: '12px' }}>
-                    Uploading pitch deck to competition vault... {inlineProgress}%
-                  </div>
-                  <div
-                    style={{
-                      width: '100%',
-                      maxWidth: '400px',
-                      height: '8px',
-                      borderRadius: '999px',
-                      background: '#ebdcd0',
-                      margin: '0 auto',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: `${inlineProgress}%`,
-                        height: '100%',
-                        background: 'linear-gradient(90deg, var(--accent), #e67e22)',
-                        transition: 'width 0.2s ease',
-                      }}
-                    />
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#8a7a6e', marginTop: '10px' }}>
-                    Securing presentation in private storage
-                  </div>
-                </div>
-              ) : formData.ppt_object_key ? (
-                /* Case 2: Uploaded state - full size card */
-                <div
-                  style={{
-                    width: '100%',
-                    padding: '20px 24px',
-                    borderRadius: '16px',
-                    background: '#f0fdf4',
-                    border: '1.5px solid #86efac',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '16px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
-                    <div
-                      style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '12px',
-                        background: '#22c55e',
-                        color: '#fff',
-                        display: 'grid',
-                        placeItems: 'center',
-                        flexShrink: 0,
-                        boxShadow: '0 4px 12px rgba(34, 197, 94, 0.25)',
-                      }}
-                    >
-                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '15px', fontWeight: 600, color: '#14532d', wordBreak: 'break-all' }}>
-                        {formData.ppt_filename || 'pitch-deck.pptx'}
-                      </div>
-                      <div style={{ fontSize: '12.5px', color: '#16a34a', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span>{formatFileSize(formData.ppt_size_bytes)}</span>
-                        <span>•</span>
-                        <span>Stored securely in competition vault</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <button
-                      type="button"
-                      className="pill"
-                      onClick={() => inlineFileInputRef.current?.click()}
-                      style={{
-                        padding: '6px 16px',
-                        fontSize: '12.5px',
-                        background: '#fff',
-                        borderColor: '#86efac',
-                        color: '#15803d',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Replace File
-                    </button>
-                    <button
-                      type="button"
-                      className="pill"
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          ppt_object_key: undefined,
-                          ppt_filename: undefined,
-                          ppt_size_bytes: undefined,
-                          ppt_uploaded_at: undefined,
-                          ppt_url: undefined,
-                        }));
-                        if (inlineFileInputRef.current) inlineFileInputRef.current.value = '';
-                      }}
-                      style={{
-                        padding: '6px 16px',
-                        fontSize: '12.5px',
-                        background: '#fff',
-                        borderColor: '#fca5a5',
-                        color: '#b91c1c',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Case 3: Empty state - Full size dropzone in place of link holder */
-                <div
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => inlineFileInputRef.current?.click()}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      inlineFileInputRef.current?.click();
-                    }
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(true);
-                  }}
-                  onDragLeave={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(false);
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setIsDragOver(false);
-                    const droppedFile = e.dataTransfer.files?.[0];
-                    if (droppedFile) handleInlineFileSelect(droppedFile);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '36px 20px',
-                    borderRadius: '16px',
-                    border: `2px dashed ${isDragOver ? 'var(--accent)' : '#c9b8a8'}`,
-                    background: isDragOver ? 'rgba(212, 97, 47, 0.06)' : 'rgba(255, 255, 255, 0.55)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.25s ease',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '50%',
-                      background: 'rgba(59, 33, 22, 0.06)',
-                      display: 'grid',
-                      placeItems: 'center',
-                      color: 'var(--accent)',
-                      marginBottom: '14px',
-                    }}
-                  >
-                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                      <polyline points="17 8 12 3 7 8" />
-                      <line x1="12" y1="3" x2="12" y2="15" />
-                    </svg>
-                  </div>
-                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>
-                    Drop your Pitch Deck file here, or <span style={{ color: 'var(--accent)', textDecoration: 'underline' }}>browse</span>
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: '#7a6a5d', marginTop: '6px' }}>
-                    Upload presentation in .ppt, .pptx, or .pdf format (up to 25 MB)
-                  </div>
-                  <div style={{ marginTop: '14px' }}>
-                    <span className="pill" style={{ padding: '6px 18px', fontSize: '12px', background: 'var(--ink)', color: '#fff' }}>
-                      Choose File
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {inlineUploadError && (
-                <div
-                  style={{
-                    marginTop: '10px',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
-                    background: '#fef2f2',
-                    border: '1px solid #fecaca',
-                    color: '#b91c1c',
-                    fontSize: '12.5px',
-                  }}
-                >
-                  {inlineUploadError}
-                </div>
-              )}
-            </div>
-
             {/* Honeypot hidden field */}
             <input
               type="text"
@@ -1216,7 +882,7 @@ export default function RegisterForm({
 
             <div className="card" style={{ padding: '20px', marginBottom: '16px', background: 'rgba(255,255,255,.5)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <strong>Campus Idea & Presentation</strong>
+                <strong>Campus Idea</strong>
                 <button type="button" onClick={() => setCurrentStep(2)} className="pill" style={{ padding: '4px 12px', fontSize: '11px' }}>
                   Edit
                 </button>
@@ -1230,24 +896,6 @@ export default function RegisterForm({
               <p style={{ fontSize: '13px', color: '#5b4a3f', marginTop: '6px' }}>
                 <strong>Solution:</strong> {formData.solution.slice(0, 180)}...
               </p>
-              {formData.ppt_filename && (
-                <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#1b5e20' }}>
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  <span>
-                    <strong>Pitch Deck File:</strong> {formData.ppt_filename} ({formatFileSize(formData.ppt_size_bytes)}) ✓ Uploaded
-                  </span>
-                </div>
-              )}
-              {formData.reference_link && (
-                <p style={{ fontSize: '13px', marginTop: '8px' }}>
-                  <strong>Presentation Link:</strong>{' '}
-                  <a href={formData.reference_link} target="_blank" rel="noopener noreferrer" style={{ color: '#d4612f' }}>
-                    {formData.reference_link}
-                  </a>
-                </p>
-              )}
             </div>
 
             {/* Consent checkbox */}
@@ -1342,22 +990,6 @@ export default function RegisterForm({
           )}
         </div>
       </form>
-
-      {/* Direct Filebase PPT/PDF Upload Dialog */}
-      <UploadModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        identifier={idempotencyKey || formData.team_name}
-        onUploadSuccess={({ objectKey, filename, size }) => {
-          setFormData((prev) => ({
-            ...prev,
-            ppt_object_key: objectKey,
-            ppt_filename: filename,
-            ppt_size_bytes: size,
-            ppt_uploaded_at: new Date().toISOString(),
-          }));
-        }}
-      />
     </div>
   );
 }

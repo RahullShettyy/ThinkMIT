@@ -133,7 +133,6 @@ export function generateTeamCSV(
     'Solution',
     'Uniqueness',
     'Impact',
-    'Link',
     'Member 1 Name',
     'Member 1 USN',
     'Member 1 Email',
@@ -158,7 +157,6 @@ export function generateTeamCSV(
     'Member 3 Year',
     'Member 3 Department',
     'Member 3 Stream/Role',
-    'Pitch Deck URL',
     'Submitted At (ISO)',
     'Submitted At (IST)',
     'Team ID',
@@ -194,7 +192,6 @@ export function generateTeamCSV(
       sanitizeCell(team.solution || ''),
       sanitizeCell(team.uniqueness || ''),
       sanitizeCell(team.impact || ''),
-      sanitizeCell(team.reference_link || ''),
       // Member 1
       sanitizeCell(m1.name),
       sanitizeCell(m1.usn),
@@ -222,8 +219,7 @@ export function generateTeamCSV(
       sanitizeCell(m3.year),
       sanitizeCell(m3.department || m3.branch),
       sanitizeCell(m3Stream),
-      // Pitch Deck URL, Submitted At, Team ID
-      sanitizeCell(deckUrl),
+      // Submitted At, Team ID
       sanitizeCell(formatISO(team.created_at)),
       sanitizeCell(formatIST(team.created_at)),
       sanitizeCell(teamId),

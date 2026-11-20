@@ -68,12 +68,11 @@ async function runRegistrationTests() {
     solution: 'Automated optical and weight sensors with edge AI for real-time sorting.',
     uniqueness: 'Low-cost retrofit module designed for existing campus dustbins.',
     impact: 'Reduces landfill contamination by 70% and generates recycling telemetry.',
-    reference_link: 'https://drive.google.com/file/d/sample-pitch-deck-presentation/view',
     consent: true,
   };
 
   // TEST 1: Submit valid Team 1
-  console.log('TEST 1: Submitting Valid Team 1 (with PPT pitch deck link)...');
+  console.log('TEST 1: Submitting Valid Team 1...');
   const res1 = await postRegister(team1Payload, { 'x-idempotency-key': team1Key });
   console.log(` Status: ${res1.status}, Response:`, res1.data);
   assert.strictEqual(res1.status, 201, 'Valid registration 1 should return 201');
@@ -127,7 +126,6 @@ async function runRegistrationTests() {
       },
     ],
     idea_title: 'Rooftop Solar Monitoring',
-    reference_link: 'https://canva.com/design/sample-pitch-deck',
   };
   const res2 = await postRegister(team2Payload);
   console.log(` Status: ${res2.status}, Response:`, res2.data);

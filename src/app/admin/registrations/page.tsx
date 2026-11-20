@@ -24,9 +24,6 @@ interface Team {
   track_key: string;
   idea_title: string;
   idea_abstract: string;
-  ppt_url?: string;
-  ppt_object_key?: string;
-  ppt_filename?: string;
   status: string;
   score?: number | null;
   internal_notes?: string | null;
@@ -62,7 +59,6 @@ export default function RegistrationsAdminPage() {
     trackKey: siteData.tracks[0]?.key || 'waste-to-wealth',
     ideaTitle: '',
     ideaAbstract: '',
-    pptUrl: '',
     members: [
       { name: '', usn: '', email: '', phone: '', programme: 'BE', branch: 'CSE', semester: 5, role: 'technical', isLeader: true },
       { name: '', usn: '', email: '', phone: '', programme: 'BE', branch: 'ECE', semester: 5, role: 'business', isLeader: false },
@@ -443,21 +439,6 @@ export default function RegistrationsAdminPage() {
                       <td>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{t.team_name}</span>
-                          {t.ppt_object_key && (
-                            <span
-                              title={`Pitch deck uploaded: ${t.ppt_filename || 'file'}`}
-                              style={{
-                                fontSize: '10px',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                                background: '#e8f5e9',
-                                color: '#2e7d32',
-                                fontWeight: 600,
-                              }}
-                            >
-                              Deck ✓
-                            </span>
-                          )}
                         </div>
                         <div style={{ fontSize: '11px', color: '#7a6a5d', maxWidth: '240px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={t.idea_title}>
                           {t.idea_title}
@@ -607,16 +588,6 @@ export default function RegistrationsAdminPage() {
                   required
                   value={newTeam.ideaAbstract}
                   onChange={(e) => setNewTeam({ ...newTeam, ideaAbstract: e.target.value })}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginTop: '14px' }}>
-                <label>Pitch Deck / PPT URL</label>
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={newTeam.pptUrl}
-                  onChange={(e) => setNewTeam({ ...newTeam, pptUrl: e.target.value })}
                 />
               </div>
 

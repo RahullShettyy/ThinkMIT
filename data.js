@@ -65,7 +65,7 @@ const siteData = {
     notYetOpenMessage: "Registrations will open soon. Stay tuned!",
     teamSize: 3, // fixed by the event design; do not change without a DB migration
     maxTeams: null, // null = unlimited
-    regIdPrefix: "TMIT", // generates TMIT-0001, TMIT-0002 ...
+    regIdPrefix: "TMIT", // generates TMIT-001, TMIT-002 ...
     successTitle: "You're in! Registration received.",
     successMessage:
       "Your team and idea have been submitted. Screening results will be announced later. Keep your Registration ID safe.",
@@ -147,11 +147,6 @@ const siteData = {
         label: "Expected Impact & Implementation",
         placeholder: "Who benefits, and how could it be implemented on campus?",
         required: true,
-      },
-      referenceLink: {
-        label: "Supporting Link (optional)",
-        placeholder: "Google Drive / Figma / YouTube link, if any",
-        required: false,
       },
     },
   },

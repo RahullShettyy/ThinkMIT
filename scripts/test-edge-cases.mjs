@@ -49,7 +49,6 @@ async function runEdgeCaseTests() {
     solution: 'Automated solar bin system with optical sensors...',
     uniqueness: 'Local components and offline telemetry...',
     impact: 'Reduces manual sorting labor by 80%...',
-    reference_link: 'https://example.com/pitch.pdf',
     consent: true,
   };
 

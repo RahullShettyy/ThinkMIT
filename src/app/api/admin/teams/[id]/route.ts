@@ -78,7 +78,6 @@ export async function PATCH(
     if (body.track_key !== undefined) updateData.track_key = String(body.track_key).trim();
     if (body.idea_title !== undefined) updateData.idea_title = String(body.idea_title).trim();
     if (body.idea_abstract !== undefined) updateData.idea_abstract = String(body.idea_abstract).trim();
-    if (body.ppt_url !== undefined) updateData.ppt_url = body.ppt_url ? String(body.ppt_url).trim() : null;
 
     const { data: updatedTeam, error: teamErr } = await supabase
       .from('teams')

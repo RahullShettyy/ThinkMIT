@@ -148,24 +148,6 @@ export function buildRegistrationSchema(content: SiteContent) {
         .trim()
         .min(10, 'Expected impact must be at least 10 characters')
         .max(limits.impactMax, `Expected impact max ${limits.impactMax} characters`),
-      reference_link: z
-        .string()
-        .trim()
-        .optional()
-        .refine((val) => !val || /^https?:\/\/.+/i.test(val), {
-          message: 'Supporting link must be a valid http(s) URL (e.g. Google Drive, Canva, Figma)',
-        }),
-      ppt_url: z.string().trim().optional(),
-      ppt_object_key: z
-        .string()
-        .trim()
-        .optional()
-        .refine((val) => !val || val.startsWith('submissions/'), {
-          message: 'Invalid pitch deck object key',
-        }),
-      ppt_filename: z.string().trim().optional(),
-      ppt_size_bytes: z.number().int().positive().optional(),
-      ppt_uploaded_at: z.string().trim().optional(),
       consent: z.literal(true, {
         errorMap: () => ({ message: 'You must confirm the consent checkbox' }),
       }),
