@@ -87,6 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { label: 'Content Editor', href: '/admin/content', exact: false },
     { label: 'Promo Video', href: '/admin/video', exact: false },
     { label: 'Media Assets', href: '/admin/media', exact: false },
+    { label: 'Template PPT', href: '/admin/template', exact: false },
     { label: 'Settings', href: '/admin/settings', exact: false },
   ];
 

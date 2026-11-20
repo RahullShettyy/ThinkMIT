@@ -69,6 +69,8 @@ const siteData = {
     successTitle: "You're in! Registration received.",
     successMessage:
       "Your team and idea have been submitted. Screening results will be announced later. Keep your Registration ID safe.",
+    whatsappGroupUrl:
+      "https://chat.whatsapp.com/JrRCX2alfSp5WqYGNBgxuD?s=cl&p=a&iam=2",
     consentText:
       "I confirm that all details are accurate, the idea is original, and all three team members agree to follow the event guidelines.",
     validation: {

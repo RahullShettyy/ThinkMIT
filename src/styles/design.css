@@ -121,6 +121,14 @@ html.lenis,html.lenis body{height:auto}
 .nav-contact-link:hover{
   opacity:.7;
 }
+.nav-template-btn{
+  padding:8px 16px; font-size:12px; font-weight:500; text-decoration:none;
+  background:var(--pill); color:var(--ink); border:1px solid rgba(42,26,18,.08);
+  gap:6px;
+}
+.nav-template-btn:hover{
+  background:#e3d6c6; border-color:rgba(42,26,18,.18); color:var(--accent);
+}
 
 /* Button Dark with sheen */
 .btn-dark{
@@ -941,7 +949,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 }
 
 @media (max-width:860px){
-  .nav-l, .nav-contact-link{display:none}
+  .nav-l, .nav-contact-link, .nav-template-btn{display:none}
   .burger{display:flex}
   .nav-wrap{grid-template-columns:auto 1fr auto}
   .logo{order:-1}

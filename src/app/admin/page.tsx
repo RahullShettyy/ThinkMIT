@@ -93,6 +93,13 @@ export default function AdminDashboardPage() {
             ↻ Refresh
           </button>
           <Link
+            href="/admin/template"
+            className="pill"
+            style={{ textDecoration: 'none', padding: '8px 16px', fontSize: '13px' }}
+          >
+            Template PPT
+          </Link>
+          <Link
             href="/admin/registrations"
             className="btn-dark"
             style={{ textDecoration: 'none', padding: '8px 18px', fontSize: '13px' }}
