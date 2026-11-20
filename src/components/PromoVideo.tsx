@@ -54,7 +54,7 @@ export default function PromoVideo({
 
   const hasUrl = Boolean(promoVideo.url && promoVideo.url.trim() !== '');
   const isNone = promoVideo.type === 'none' || !hasUrl;
-  const poster = promoVideo.poster || media.aboutPoster;
+  const poster = promoVideo.poster || media.promoPoster || '';
 
   let embedUrl: string | null = null;
   if (!isNone && (promoVideo.type === 'youtube' || promoVideo.type === 'vimeo')) {

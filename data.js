@@ -24,17 +24,17 @@ const siteData = {
   /* ───────────────────────────── 1. BRAND / SEO ───────────────────────────── */
   site: {
     name: "THINK MIT",
-    tagline: "Your Idea. Our Campus.",
+    tagline: "THINK MIT Your Idea. Our Campus.",
     subTagline: "From Pitch to Implementation.",
     heroHeadline: ["Your Idea.", "Our Campus."], // each item = one line of the big H1
     description:
-      "THINK MIT is a college-level innovation pitchfest where students identify campus problems and pitch practical solutions — with a pathway to funding and implementation.",
+      "THINK MIT is a college-level innovation pitchfest where students identify campus problems and pitch practical solutions — with a pathway to mentorship, incubation, and campus implementation.",
     collegeShortName: "MITM",
     organisedBy: [
       "Department of CSE-Artificial Intelligence (AIDEON Club) — Host",
       "Institution's Innovation Council (IIC), MITM",
-      "Entrepreneurship Development Cell (EDC), MITM",
-      "Center for Innovation and Excellence (CIE)",
+      "Entrepreneurship and Development Cell (EDC), MITM",
+      "Center for Innovation and Entrepreneurship (CIE)",
     ],
     inAssociationWith: "Department of Computer Science and Engineering – Artificial Intelligence (CSE–AI)",
     logoUrl: "/logos/mit-mysore-logo.jpg",
@@ -123,7 +123,7 @@ const siteData = {
       department: { enabled: true, label: "Department", placeholder: "e.g. CSE-AI", required: true },
     },
     memberTitles: ["Team Leader (Member 1)", "Member 2", "Member 3"],
-    programmeOptions: ["UG – 2nd Year", "UG – 3rd Year", "UG – 4th Year", "MBA", "MCA"],
+    programmeOptions: ["UG – 1st Year", "UG – 2nd Year", "UG – 3rd Year", "UG – 4th Year", "MBA", "MCA", "M.Tech"],
     idea: {
       title: { label: "Idea Title", placeholder: "A short, catchy name for your idea", required: true },
       problem: {
@@ -161,9 +161,9 @@ const siteData = {
       key: "business",
       label: "Business Lead",
       defaultMemberPosition: 1,
-      summary: "The need, cost, funding and plan to implement the idea on campus.",
+      summary: "The need, budget, feasibility and plan to implement the idea on campus.",
       responsibilities: [
-        "Explains the campus need, budget, and funding estimation",
+        "Explains the campus need, budget, and implementation feasibility",
         "Presents the plan to implement and sustain the solution on campus",
       ],
       training: null,
@@ -235,7 +235,7 @@ const siteData = {
 
   /* ───────────────────────────────── 7. HERO ───────────────────────────────── */
   hero: {
-    subtitle: "Pitch a campus problem. Build the solution. Get a shot at real funding.",
+    subtitle: "Pitch a campus problem. Build the solution. Bring real campus innovation to life.",
     primaryCta: { label: "Register Your Team", href: "/register" },
     secondaryCta: { label: "Read Guidelines", href: "/#guidelines" },
     // Glass "studio" panel (decorative live demo of a pitch)
@@ -288,7 +288,7 @@ const siteData = {
       },
       eligibility: {
         title: "Who Can Participate",
-        text: "Students of 2nd, 3rd and 4th year UG programmes, plus MBA and MCA, at MITM. Teams of exactly three.",
+        text: "Students of 1st, 2nd, 3rd and 4th year UG programmes, plus MBA, MCA, and M.Tech, at MITM. Interdisciplinary teams across departments and years are allowed. Teams of exactly three.",
       },
       training: {
         title: "Five Parallel Tracks",
@@ -303,7 +303,7 @@ const siteData = {
         text: "Business, Innovation and Technical leads — each presenting one category of the pitch.",
       },
       funding: {
-        title: "Funding & Implementation",
+        title: "Mentorship & Implementation",
         text: "Mentorship from IIC, EDC and CIE with pathway to pilot winning solutions on campus.",
         chip: "Implementation pathway",
       },
@@ -330,9 +330,9 @@ const siteData = {
       note: "Implementation and campus adoption are subject to institutional review and approval.",
       steps: [
         { title: "Mentorship & Guidance", text: "Hands-on mentorship from IIC, EDC and faculty experts to refine the solution." },
-        { title: "Incubation Support", text: "Incubation guidance from the Center for Innovation and Excellence (CIE) to develop startup basics." },
+        { title: "Incubation Support", text: "Incubation guidance from the Center for Innovation and Entrepreneurship (CIE) to develop startup basics." },
         { title: "Campus Pilot", text: "Opportunity to pilot, test and adopt the solution directly within the MITM campus environment." },
-        { title: "Funding Pathway", text: "Institutional funding opportunities and potential savings realization for power, water, or waste." },
+        { title: "Institutional Adoption", text: "Opportunities for institutional deployment and measurable improvements across campus facilities." },
       ],
     },
   },
@@ -371,8 +371,8 @@ const siteData = {
             items: [
               "Host Department: Department of CSE-Artificial Intelligence (AIDEON Club)",
               "Supporting Unit: Institution's Innovation Council (IIC), MITM",
-              "Supporting Unit: Entrepreneurship Development Cell (EDC), MITM",
-              "Supporting Unit: Center for Innovation and Excellence (CIE)",
+              "Supporting Unit: Entrepreneurship and Development Cell (EDC), MITM",
+              "Supporting Unit: Center for Innovation and Entrepreneurship (CIE)",
             ],
           },
           {
@@ -435,7 +435,7 @@ const siteData = {
           {
             heading: "Presentation Categories",
             items: [
-              "Business Lead: The need, cost, funding and plan to implement the idea on campus.",
+              "Business Lead: The need, budget, feasibility and plan to implement the idea on campus.",
               "Technical Lead: How to build or make a solution functional through technology.",
               "Innovation Lead: What is new in the idea and the difference it makes to existing products/solutions in the real world.",
               "All three members must actively take part and present their designated category.",
@@ -451,10 +451,10 @@ const siteData = {
           {
             heading: "Eligibility",
             items: [
-              "Students currently studying in 2nd, 3rd, and 4th year of undergraduate programmes at MITM are eligible.",
-              "Students pursuing MBA and MCA programmes are also eligible.",
+              "Students currently studying in 1st, 2nd, 3rd, and 4th year of undergraduate (UG) programmes at MITM are eligible.",
+              "Students pursuing MBA, MCA, and M.Tech programmes are also eligible.",
               "Participation must be in teams of exactly three members.",
-              "Multidisciplinary and cross-department teams are strongly encouraged.",
+              "Interdisciplinary and cross-department teams across all UG, MBA, MCA, and M.Tech programmes are allowed and strongly encouraged.",
             ],
           },
           {
@@ -524,8 +524,8 @@ const siteData = {
           {
             heading: "Other Proposed Benefits",
             items: [
-              "Mentorship from IIC (Institution's Innovation Council) and EDC (Entrepreneurship Development Cell).",
-              "Incubation guidance from CIE (Center for Innovation and Excellence) to grow ideas into startups.",
+              "Mentorship from IIC (Institution's Innovation Council) and EDC (Entrepreneurship and Development Cell).",
+              "Incubation guidance from CIE (Center for Innovation and Entrepreneurship) to grow ideas into startups.",
               "Support to take winning ideas forward for adoption and implementation on the MITM campus, subject to approval.",
             ],
           },
@@ -589,13 +589,13 @@ const siteData = {
     eyebrow: "Contact Us",
     heading: "Questions? Reach out.",
     intro: "For support, queries and event coordination, feel free to reach out to us.",
+    people: [
+      { role: "HOD", name: "Dr. Hemanth S. R.", designation: "HOD, Department of CSE-AI" },
+      { role: "SWO", name: "Prof. Kishan G S", designation: "SWO MITM" },
+    ],
     coordinators: [
       { name: "Shreya M", role: "Event Coordinator", phone: "9480168828" },
       { name: "S. Aishwarya", role: "Event Coordinator", phone: "7795454354" },
-    ],
-    people: [
-      { role: "HOD", name: "Dr. Hemanth S. R." },
-      { role: "SWO", name: "Prof. Kishan G S" },
     ],
     email: null, // e.g. "thinkmit@college.edu"; null hides it
     department: "Department of CSE-AI",
@@ -656,6 +656,7 @@ const siteData = {
     heroPanelImage: "/logos/funding-implementation-logo.jpg",
     aboutVideo: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261022_054543_65a4e3d3-ce77-45a9-8917-60ce35999ea7.mp4",
     aboutPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_8ee49f04-c4b4-4be9-9788-e5f7030697ce.png",
+    promoPoster: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093819_8ee49f04-c4b4-4be9-9788-e5f7030697ce.png",
     aboutBigCard: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_27269365-10b0-493c-aaeb-f491968d728e.png",
     aboutCollageA: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093821_f31363e6-8c86-4044-ae68-234c89bfd631.png",
     aboutCollageB: "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261021_093820_271e56c9-4dd2-4893-ac2d-2ef620eb354e.png",

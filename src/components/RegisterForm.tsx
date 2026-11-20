@@ -56,7 +56,7 @@ export default function RegisterForm({
     email: '',
     phone: '',
     role_key: roleKey,
-    programme: form.programmeOptions[0] || 'UG – 3rd Year',
+    programme: form.programmeOptions[0] || 'UG – 1st Year',
     year: '',
     department: '',
   });
@@ -523,7 +523,7 @@ export default function RegisterForm({
               2. Team Members (Exactly 3)
             </h3>
             <p style={{ fontSize: '13px', color: '#6a594d', marginBottom: '20px' }}>
-              Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. Selecting a role already assigned automatically swaps with that member.
+              Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. All UG (1st, 2nd, 3rd, 4th Year), MBA, MCA, and M.Tech students are eligible, and interdisciplinary teams across departments are allowed and encouraged.
             </p>
 
             {formData.members.map((member, idx) => (

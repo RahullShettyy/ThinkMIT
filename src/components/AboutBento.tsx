@@ -104,9 +104,26 @@ export default function AboutBento({
               className="card c-pad rv"
               style={{ '--d': 2 } as React.CSSProperties}
             >
-              <div className="collage">
-                <img src="/logos/mit-mysore-logo.jpg" alt="MIT Mysore" />
-                <img src="/logos/cse-ai-logo.jpg" alt="CSE-AI Department" />
+              <div
+                className="collage"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#ffffff',
+                  minHeight: '140px',
+                  padding: '12px',
+                }}
+              >
+                <img
+                  src="/logos/a2735e9e-58f0-44dc-bfce-5afb8f19230b.jpg"
+                  alt="Maharaja Institute of Technology Mysore"
+                  style={{
+                    width: '125px',
+                    height: '125px',
+                    objectFit: 'contain',
+                  }}
+                />
               </div>
               <div className="txt">
                 <h4>{about.cards.eligibility.title}</h4>

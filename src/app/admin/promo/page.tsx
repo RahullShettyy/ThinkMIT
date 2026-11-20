@@ -33,7 +33,8 @@ export default function AdminPromoPage() {
 
         setVideoType(promo.type || 'none');
         setVideoUrl(promo.url || '');
-        setPosterUrl(promo.poster || '');
+        const mediaPromoPoster = data.overrides?.media?.promoPoster || data.defaults?.media?.promoPoster || '';
+        setPosterUrl(promo.poster || mediaPromoPoster || '');
         if (promo.comingSoonText) setComingSoonText(promo.comingSoonText);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Error loading promo video settings');

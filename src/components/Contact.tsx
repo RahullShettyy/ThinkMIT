@@ -21,6 +21,26 @@ export default function Contact({
       </div>
 
       <div className="contact-grid">
+        {/* Leadership People */}
+        {contact.people.map((p, idx) => (
+          <div
+            key={`people-${idx}`}
+            className="card coord-card rv"
+            style={{ '--d': idx + 1 } as React.CSSProperties}
+          >
+            <div className="coord-top">
+              <div className="coord-avatar">{p.role}</div>
+              <div>
+                <div className="coord-name">{p.name}</div>
+                <div className="coord-role">
+                  {(p as { designation?: string }).designation ||
+                    (p.role === 'SWO' ? 'SWO MITM' : (contact.department || 'Event Leadership'))}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+
         {/* Coordinators */}
         {contact.coordinators.map((c, idx) => {
           const initials = c.name
@@ -31,9 +51,9 @@ export default function Contact({
 
           return (
             <div
-              key={idx}
+              key={`coord-${idx}`}
               className="card coord-card rv"
-              style={{ '--d': idx + 1 } as React.CSSProperties}
+              style={{ '--d': contact.people.length + idx + 1 } as React.CSSProperties}
             >
               <div className="coord-top">
                 <div className="coord-avatar">{initials}</div>
@@ -63,23 +83,6 @@ export default function Contact({
             </div>
           );
         })}
-
-        {/* Leadership People */}
-        {contact.people.map((p, idx) => (
-          <div
-            key={idx}
-            className="card coord-card rv"
-            style={{ '--d': (contact.coordinators.length + idx + 1) } as React.CSSProperties}
-          >
-            <div className="coord-top">
-              <div className="coord-avatar">{p.role}</div>
-              <div>
-                <div className="coord-name">{p.name}</div>
-                <div className="coord-role">{contact.department || 'Event Leadership'}</div>
-              </div>
-            </div>
-          </div>
-        ))}
 
         {/* Optional Email */}
         {contact.email && (
