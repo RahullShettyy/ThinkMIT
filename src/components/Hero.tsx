@@ -39,20 +39,30 @@ export default function Hero({
             className="hero-actions rv"
             style={{ '--base': '780ms' } as React.CSSProperties}
           >
-            {regState.isClosed ? (
-              <button
-                className="btn-dark disabled"
-                disabled
-                title={regState.stateMessage}
-                aria-disabled="true"
+            <a
+              href="/api/template-ppt"
+              download="THINK_MIT_Pitchfest_Pitch_Deck.pptx"
+              className="btn-dark"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+              title="Download Pitch Deck PPT Template"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-                {hero.primaryCta.label}
-              </button>
-            ) : (
-              <Link href={hero.primaryCta.href || '/register'} className="btn-dark">
-                {hero.primaryCta.label}
-              </Link>
-            )}
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Download Template PPT</span>
+            </a>
 
             <a href={hero.secondaryCta.href || '#about'} className="pill">
               {hero.secondaryCta.label}

@@ -238,7 +238,7 @@ const siteData = {
   /* ───────────────────────────────── 7. HERO ───────────────────────────────── */
   hero: {
     subtitle: "Pitch a campus problem. Build the solution. Bring real campus innovation to life.",
-    primaryCta: { label: "Register Your Team", href: "/register" },
+    primaryCta: { label: "Download Template PPT", href: "/api/template-ppt" },
     secondaryCta: { label: "Read Guidelines", href: "/#guidelines" },
     // Glass "studio" panel (decorative live demo of a pitch)
     panel: {

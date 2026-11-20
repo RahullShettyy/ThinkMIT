@@ -23,11 +23,18 @@ export default async function HomePage() {
       const supabase = getSupabaseServerClient();
       if (supabase) {
         // Query strictly selected teams and only public fields: team_name, track_key, idea_title
-        const { data: rows } = await supabase
+        const fetchPromise = supabase
           .from('teams')
           .select('team_name, track_key, idea_title')
           .eq('status', 'selected')
           .order('team_name', { ascending: true });
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('Teams query timed out (2s)')), 2000)
+        );
+
+        const { data: rows } = (await Promise.race([fetchPromise, timeoutPromise])) as {
+          data: Array<{ team_name: string; track_key: string; idea_title: string }> | null;
+        };
 
         const trackMap: Record<string, string> = {};
         ((content.tracks as Array<{ key: string; name?: string; title?: string }>) || []).forEach((t) => {

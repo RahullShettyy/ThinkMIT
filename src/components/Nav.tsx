@@ -60,21 +60,6 @@ export default function Nav({
           </Link>
 
           <div className="nav-r">
-            <a
-              href="/api/template-ppt"
-              download="THINK_MIT_Pitchfest_Pitch_Deck.pptx"
-              className="nav-template-btn pill"
-              title="Download Sample Pitch Deck PPT Template"
-              aria-label="Download Sample Pitch Deck PPT Template"
-            >
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              <span>Template PPT</span>
-            </a>
-
             <a href={contactLink.href} className="nav-contact-link">
               {contactLink.label}
             </a>
@@ -108,18 +93,6 @@ export default function Nav({
             {link.label}
           </a>
         ))}
-        <a
-          href="/api/template-ppt"
-          download="THINK_MIT_Pitchfest_Pitch_Deck.pptx"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--accent)' }}
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          Download Template PPT
-        </a>
         {nav.mobileExtraLabel && (
           <a href={regState.isClosed ? '#' : nav.ctaHref}>
             {nav.mobileExtraLabel}

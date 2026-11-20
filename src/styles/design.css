@@ -121,14 +121,6 @@ html.lenis,html.lenis body{height:auto}
 .nav-contact-link:hover{
   opacity:.7;
 }
-.nav-template-btn{
-  padding:8px 16px; font-size:12px; font-weight:500; text-decoration:none;
-  background:var(--pill); color:var(--ink); border:1px solid rgba(42,26,18,.08);
-  gap:6px;
-}
-.nav-template-btn:hover{
-  background:#e3d6c6; border-color:rgba(42,26,18,.18); color:var(--accent);
-}
 
 /* Button Dark with sheen */
 .btn-dark{
@@ -255,6 +247,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 }
 .hero-actions{
   display:flex; justify-content:center; align-items:center; gap:12px; margin-top:26px;
+  flex-wrap:wrap;
 }
 .hero-card{
   position:relative; margin-top:34px; border-radius:34px; overflow:hidden;
@@ -504,21 +497,107 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
   filter:blur(10px); pointer-events:none;
 }
 .stage{
-  position:relative; margin-top:30px; display:grid;
-  grid-template-columns:1fr 1.05fr 1fr; align-items:end; gap:20px;
+  position:relative; margin-top:32px; display:grid;
+  grid-template-columns:1fr minmax(280px,1.15fr) 1fr; align-items:center; gap:24px;
 }
 .stage .col{
-  display:flex; flex-direction:column; gap:14px; padding-bottom:48px;
+  display:flex; flex-direction:column; gap:16px;
 }
 .hand{
-  position:relative; align-self:end; height:640px; border-radius:24px 24px 0 0;
+  position:relative; align-self:center; height:auto; border-radius:28px;
   overflow:hidden;
-  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 100%);
-  mask-image:linear-gradient(180deg,transparent 0%,#000 14%,#000 100%);
+  background:#ffffff;
+  border:1px solid rgba(59,33,22,0.12);
+  box-shadow:0 18px 45px -12px rgba(59,33,22,0.22);
+  cursor:pointer;
+  transition:transform .35s cubic-bezier(0.16,1,0.3,1), box-shadow .35s ease;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:14px;
+}
+.hand:hover{
+  transform:translateY(-6px) scale(1.015);
+  box-shadow:0 26px 55px -10px rgba(59,33,22,0.32);
 }
 #hand-img{
-  position:absolute; left:0; top:0; width:100%; height:115%;
-  object-fit:cover; will-change:transform;
+  position:relative; width:100%; height:auto; max-height:560px;
+  object-fit:contain; border-radius:20px; display:block;
+  transition:transform .35s ease;
+}
+.hand:hover #hand-img{
+  transform:scale(1.01);
+}
+.hand-expand-hint{
+  display:inline-flex; align-items:center; gap:6px;
+  margin-top:10px; font-size:12px; font-weight:500;
+  color:#6a594d; background:rgba(59,33,22,0.06);
+  padding:5px 14px; border-radius:999px;
+  transition:all .2s ease;
+}
+.hand:hover .hand-expand-hint{
+  background:var(--ink); color:#fff;
+}
+
+/* Journey Poster Lightbox Modal with Curvy Corners */
+.poster-modal-backdrop{
+  position:fixed; inset:0; z-index:9999;
+  background:rgba(35,20,12,0.78);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  animation:posterModalFadeIn .22s cubic-bezier(0.16,1,0.3,1);
+}
+.poster-modal-frame{
+  position:relative;
+  background:#ffffff;
+  border-radius:32px;
+  padding:18px 20px 22px;
+  max-width:min(92vw, 680px);
+  max-height:92vh;
+  box-shadow:0 35px 90px rgba(0,0,0,0.48), 0 0 0 1px rgba(255,255,255,0.2);
+  display:flex; flex-direction:column; align-items:center;
+  animation:posterModalZoomIn .24s cubic-bezier(0.16,1,0.3,1);
+  overflow:hidden;
+}
+.poster-modal-header{
+  width:100%; display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:12px; padding:0 4px;
+}
+.poster-modal-title{
+  font-size:14px; font-weight:600; color:var(--ink); letter-spacing:-0.01em;
+  display:flex; align-items:center; gap:8px;
+}
+.poster-modal-close{
+  width:36px; height:36px; border-radius:50%;
+  border:0; background:rgba(59,33,22,0.08);
+  color:var(--ink); cursor:pointer;
+  display:grid; place-items:center;
+  transition:all .2s ease;
+}
+.poster-modal-close:hover{
+  background:var(--ink); color:#fff; transform:rotate(90deg);
+}
+.poster-modal-body{
+  width:100%; display:flex; justify-content:center; align-items:center;
+  max-height:calc(85vh - 70px);
+  overflow:auto;
+}
+.poster-modal-img{
+  max-width:100%;
+  max-height:calc(85vh - 80px);
+  height:auto; width:auto;
+  object-fit:contain;
+  border-radius:22px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.12);
+  display:block;
+}
+@keyframes posterModalFadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes posterModalZoomIn{
+  from{opacity:0; transform:scale(0.92) translateY(16px)}
+  to{opacity:1; transform:scale(1) translateY(0)}
 }
 .stage-arrow{
   width:22px; height:22px; border-radius:50%; background:#f2c94c;
@@ -938,7 +1017,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
   .bento{grid-template-columns:1fr 1fr}
   .card.c-big{grid-row:auto; grid-column:span 2; min-height:480px}
   .stage{grid-template-columns:1fr 1fr}
-  .hand{grid-column:span 2; order:-1; height:520px; max-width:520px; width:100%; justify-self:center}
+  .hand{grid-column:span 2; order:-1; height:auto; max-width:440px; width:100%; justify-self:center; margin-bottom:16px}
   .stage .col{padding-bottom:0}
   .stage .col:last-child{padding-bottom:40px}
   .funding-grid{grid-template-columns:repeat(2,1fr)}
@@ -949,7 +1028,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
 }
 
 @media (max-width:860px){
-  .nav-l, .nav-contact-link, .nav-template-btn{display:none}
+  .nav-l, .nav-contact-link{display:none}
   .burger{display:flex}
   .nav-wrap{grid-template-columns:auto 1fr auto}
   .logo{order:-1}
@@ -970,6 +1049,28 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
   .wrap{padding:0 16px}
   .btn-dark{padding:10px 18px; font-size:12px}
   .hero{padding-top:96px}
+  .hero-actions{
+    flex-direction:column;
+    width:100%;
+    max-width:320px;
+    margin:22px auto 0;
+    gap:10px;
+    padding:0 8px;
+    box-sizing:border-box;
+  }
+  .hero-actions .btn-dark,
+  .hero-actions .pill{
+    width:100%;
+    min-height:46px;
+    padding:12px 20px;
+    font-size:12.5px;
+    box-sizing:border-box;
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    letter-spacing:0.04em;
+  }
   .hero-card{border-radius:24px; padding:72px 10px 10px}
   #studio.studio{border-radius:20px}
   .chat{padding:18px 16px; gap:10px}
@@ -985,7 +1086,7 @@ body.menu-open .mmenu a:nth-child(5){transition-delay:.24s}
   .bento{grid-template-columns:1fr}
   .card.c-big{grid-column:auto; min-height:440px; padding:22px}
   .stage{grid-template-columns:1fr}
-  .hand{grid-column:auto; height:420px}
+  .hand{grid-column:auto; height:auto; max-width:360px; width:100%; margin:0 auto 16px}
   .funding-grid{grid-template-columns:1fr}
   .promo{border-radius:24px}
   .cta{

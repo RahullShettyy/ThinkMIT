@@ -47,7 +47,23 @@ export function deepFill<T>(defaultVal: T, overrideVal: unknown): T {
   return overrideVal as unknown as T;
 }
 
+let memoryCache: { data: SiteContent; expiry: number } | null = null;
+let lastFailureTimestamp = 0;
+const FAILURE_BACKOFF_MS = 20_000; // 20s backoff if connection fails or times out
+
 async function fetchMergedContent(): Promise<SiteContent> {
+  const now = Date.now();
+
+  // If in dev and we recently failed to connect to Supabase, avoid stalling the server
+  if (process.env.NODE_ENV === 'development' && now - lastFailureTimestamp < FAILURE_BACKOFF_MS) {
+    return defaultSiteData as SiteContent;
+  }
+
+  // If cached in memory and still valid, return immediately (fast 0ms response)
+  if (memoryCache && now < memoryCache.expiry) {
+    return memoryCache.data;
+  }
+
   // Always start with a shallow copy of sections from data.js
   const defaultSections = defaultSiteData as Record<string, unknown>;
   const merged: Record<string, unknown> = { ...defaultSections };
@@ -58,9 +74,16 @@ async function fetchMergedContent(): Promise<SiteContent> {
       return defaultSiteData as SiteContent;
     }
 
-    const { data: rows, error } = await supabase
-      .from('site_content')
-      .select('section, value');
+    // Wrap query in 2s timeout race
+    const fetchPromise = supabase.from('site_content').select('section, value');
+    const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
+      setTimeout(() => reject(new Error('Supabase query timed out (2s)')), 2000)
+    );
+
+    const { data: rows, error } = (await Promise.race([fetchPromise, timeoutPromise])) as {
+      data: Array<{ section: string; value: unknown }> | null;
+      error: unknown;
+    };
 
     if (error || !rows) {
       return defaultSiteData as SiteContent;
@@ -75,9 +98,12 @@ async function fetchMergedContent(): Promise<SiteContent> {
       }
     }
 
-    return merged as unknown as SiteContent;
-  } catch {
-    // If Supabase is missing, unreachable, or throws, silently fall back to data.js
+    const finalContent = merged as unknown as SiteContent;
+    memoryCache = { data: finalContent, expiry: now + 30_000 }; // 30s in-memory cache
+    return finalContent;
+  } catch (err) {
+    lastFailureTimestamp = Date.now();
+    // Graceful fallback to data.js on timeout or network drop
     return defaultSiteData as SiteContent;
   }
 }
