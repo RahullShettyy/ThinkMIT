@@ -1,19 +1,20 @@
--- Migration: Remove PPT submission fields and fix registration sequence
+-- Migration: Remove PPT submission fields and fix registration numbering
 -- Date: 2026-11-20
 -- Purpose:
--- 1. Reset registration number sequence to start from 1 (e.g. TMIT-001)
--- 2. Update atomic registration RPC function to format reg codes with 3-digit padding (TMIT-001) and remove PPT fields
+-- 1. Replace sequence-based reg codes with MAX-based approach (restarts from 001 when empty)
+-- 2. Update atomic registration RPC function
 -- 3. Drop PPT & reference link fields from public.teams
 
--- 1. Restart registration sequence at 1
-alter sequence if exists public.team_reg_seq restart with 1;
+-- 1. Drop the old sequence (no longer needed)
+drop sequence if exists public.team_reg_seq;
 
--- 2. Update atomic registration RPC function
+-- 2. Update atomic registration RPC function to use MAX-based numbering
 create or replace function public.register_team(payload jsonb, p_submission_key text, p_prefix text)
 returns text language plpgsql security definer set search_path = public as $$
 declare
   v_team_id uuid;
   v_code text;
+  v_next_num int;
   m jsonb;
   i int := 0;
 begin
@@ -21,7 +22,18 @@ begin
   select reg_code into v_code from teams where submission_key = p_submission_key;
   if v_code is not null then return v_code; end if;
 
-  v_code := case when p_prefix is not null and p_prefix != '' then p_prefix || '-' else '' end || lpad(nextval('team_reg_seq')::text, 3, '0');
+  -- Advisory lock to prevent two concurrent registrations getting the same number.
+  -- The lock is released automatically at the end of the transaction.
+  perform pg_advisory_xact_lock(hashtext('register_team'));
+
+  -- Find the next number: MAX of existing numeric suffixes + 1, or 1 if table is empty.
+  select coalesce(
+    max(nullif(regexp_replace(reg_code, '^.*-', ''), '')::int),
+    0
+  ) + 1 into v_next_num from teams;
+
+  v_code := case when p_prefix is not null and p_prefix != '' then p_prefix || '-' else '' end
+            || lpad(v_next_num::text, 3, '0');
 
   insert into teams (
     reg_code,

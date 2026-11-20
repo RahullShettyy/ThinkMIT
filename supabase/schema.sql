@@ -1,7 +1,6 @@
 create extension if not exists pgcrypto;
 
--- Registration code sequence
-create sequence if not exists team_reg_seq start 1;
+-- No sequence needed; register_team uses MAX(reg_code) + 1 for sequential numbering.
 
 create type team_status as enum
   ('submitted','under_review','shortlisted','selected','not_selected','withdrawn');
@@ -72,16 +71,29 @@ alter table public.site_content_history enable row level security;
 -- (No public policies on purpose. Never expose these tables to the anon key.)
 
 -- Atomic registration. Called ONLY from the server (service role).
+-- Uses MAX(reg_code) + 1 instead of a sequence so numbers stay sequential
+-- even when rows are deleted. Advisory lock prevents concurrent duplicates.
 create or replace function public.register_team(payload jsonb, p_submission_key text, p_prefix text)
 returns text language plpgsql security definer set search_path = public as $$
 declare
-  v_team_id uuid; v_code text; m jsonb; i int := 0;
+  v_team_id uuid; v_code text; v_next_num int; m jsonb; i int := 0;
 begin
   -- idempotent retry
   select reg_code into v_code from teams where submission_key = p_submission_key;
   if v_code is not null then return v_code; end if;
 
-  v_code := case when p_prefix is not null and p_prefix != '' then p_prefix || '-' else '' end || lpad(nextval('team_reg_seq')::text, 3, '0');
+  -- Advisory lock to prevent two concurrent registrations getting the same number.
+  -- The lock is released automatically at the end of the transaction.
+  perform pg_advisory_xact_lock(hashtext('register_team'));
+
+  -- Find the next number: MAX of existing numeric suffixes + 1, or 1 if table is empty.
+  select coalesce(
+    max(nullif(regexp_replace(reg_code, '^.*-', ''), '')::int),
+    0
+  ) + 1 into v_next_num from teams;
+
+  v_code := case when p_prefix is not null and p_prefix != '' then p_prefix || '-' else '' end
+            || lpad(v_next_num::text, 3, '0');
 
   insert into teams (
     reg_code,
