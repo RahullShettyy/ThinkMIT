@@ -91,6 +91,14 @@ const siteData = {
     },
   },
 
+  /* ───────────────────────── 3B. PPT SUBMISSION RULES ─────────────────────── */
+  submissions: {
+    isOpen: true, // master switch for thinkmit.tech/submissions. false => submissions blocked
+    deadline: null, // ISO date or null. After this, submissions close automatically
+    deadlineLabel: "", // Friendly label to display on submissions page (e.g. "Nov 25, 2026, 11:59 PM")
+    closedMessage: "PPT submissions are currently closed. Thank you for your submissions!",
+  },
+
   /* ─────────────────────── 4. FORM LABELS (what students see) ───────────────── */
   form: {
     steps: [

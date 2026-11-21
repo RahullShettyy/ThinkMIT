@@ -84,6 +84,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navLinks = [
     { label: 'Overview', href: '/admin', exact: true },
     { label: 'Registrations', href: '/admin/registrations', exact: false },
+    { label: 'Evaluations', href: '/admin/evaluations', exact: false },
+    { label: 'Filebase Storage', href: '/admin/filebase', exact: false },
     { label: 'Content Editor', href: '/admin/content', exact: false },
     { label: 'Promo Video', href: '/admin/video', exact: false },
     { label: 'Media Assets', href: '/admin/media', exact: false },

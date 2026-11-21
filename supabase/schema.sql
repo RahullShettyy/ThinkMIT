@@ -42,6 +42,19 @@ create table public.members (
 create unique index members_usn_uq   on public.members (upper(usn));
 create unique index members_email_uq on public.members (lower(email));
 
+-- submissions table: stores PPT file submission metadata linked to teams
+create table public.submissions (
+  id              uuid primary key default gen_random_uuid(),
+  reg_code        text not null references public.teams(reg_code) on delete cascade,
+  filebase_key    text not null,          -- S3 object key in Filebase bucket
+  filename        text not null,          -- original filename for display
+  file_size_bytes bigint,                 -- file size for display
+  content_type    text,                   -- MIME type
+  submitted_at    timestamptz not null default now(),
+  unique(reg_code)                        -- one submission per team
+);
+create index submissions_reg_code_idx on public.submissions (reg_code);
+
 create table public.site_content (
   section     text primary key,
   value       jsonb not null,
@@ -67,6 +80,7 @@ create trigger teams_touch before update on public.teams
 alter table public.teams                enable row level security;
 alter table public.members              enable row level security;
 alter table public.site_content         enable row level security;
+alter table public.submissions           enable row level security;
 alter table public.site_content_history enable row level security;
 -- (No public policies on purpose. Never expose these tables to the anon key.)
 

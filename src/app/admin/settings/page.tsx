@@ -15,6 +15,12 @@ export default function AdminSettingsPage() {
   const [closedMessage, setClosedMessage] = useState('');
   const [notYetOpenMessage, setNotYetOpenMessage] = useState('');
 
+  // PPT Submissions settings
+  const [pptIsOpen, setPptIsOpen] = useState(true);
+  const [pptDeadline, setPptDeadline] = useState('');
+  const [pptDeadlineLabel, setPptDeadlineLabel] = useState('');
+  const [pptClosedMessage, setPptClosedMessage] = useState('');
+
   // Announcement banner settings
   const [bannerEnabled, setBannerEnabled] = useState(false);
   const [bannerText, setBannerText] = useState('');
@@ -28,6 +34,7 @@ export default function AdminSettingsPage() {
 
   // Raw sections cache
   const [rawRegistration, setRawRegistration] = useState<Record<string, unknown>>({});
+  const [rawSubmissions, setRawSubmissions] = useState<Record<string, unknown>>({});
   const [rawAnnouncements, setRawAnnouncements] = useState<Record<string, unknown>>({});
 
   useEffect(() => {
@@ -38,15 +45,22 @@ export default function AdminSettingsPage() {
         const data = await res.json();
 
         const reg = (data.overrides?.registration || data.defaults?.registration || {}) as Record<string, unknown>;
+        const subs = (data.overrides?.submissions || data.defaults?.submissions || {}) as Record<string, unknown>;
         const ann = (data.overrides?.announcements || data.defaults?.announcements || {}) as Record<string, unknown>;
 
         setRawRegistration(reg);
+        setRawSubmissions(subs);
         setRawAnnouncements(ann);
 
         setIsOpen(reg.isOpen !== false);
         setDeadline(reg.deadline ? String(reg.deadline).slice(0, 16) : '');
         setClosedMessage(String(reg.closedMessage || 'Registrations are closed. Thank you for your interest!'));
         setNotYetOpenMessage(String(reg.notYetOpenMessage || 'Registrations will open soon. Stay tuned!'));
+
+        setPptIsOpen(subs.isOpen !== false);
+        setPptDeadline(subs.deadline ? String(subs.deadline).slice(0, 16) : '');
+        setPptDeadlineLabel(String(subs.deadlineLabel || ''));
+        setPptClosedMessage(String(subs.closedMessage || 'PPT submissions are currently closed. Thank you for your submissions!'));
 
         setBannerEnabled(Boolean(ann.bannerEnabled));
         setBannerText(String(ann.bannerText || ''));
@@ -80,7 +94,16 @@ export default function AdminSettingsPage() {
         notYetOpenMessage: notYetOpenMessage.trim(),
       };
 
-      // 2. Prepare updated announcements object
+      // 2. Prepare updated PPT submissions object
+      const updatedSubmissions = {
+        ...rawSubmissions,
+        isOpen: pptIsOpen,
+        deadline: pptDeadline ? new Date(pptDeadline).toISOString() : null,
+        deadlineLabel: pptDeadlineLabel.trim(),
+        closedMessage: pptClosedMessage.trim(),
+      };
+
+      // 3. Prepare updated announcements object
       const updatedAnnouncements = {
         ...rawAnnouncements,
         published: selectedTeamsPublished,
@@ -105,6 +128,21 @@ export default function AdminSettingsPage() {
       if (!res1.ok) {
         const d = await res1.json();
         throw new Error(d.error || 'Failed to save registration settings');
+      }
+
+      // Save submissions section
+      const resSubs = await fetch('/api/admin/content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          section: 'submissions',
+          value: updatedSubmissions,
+        }),
+      });
+
+      if (!resSubs.ok) {
+        const d = await resSubs.json();
+        throw new Error(d.error || 'Failed to save PPT submissions settings');
       }
 
       // Save announcements section
@@ -223,6 +261,80 @@ export default function AdminSettingsPage() {
             rows={2}
             value={closedMessage}
             onChange={(e) => setClosedMessage(e.target.value)}
+            style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '8px', border: '1px solid var(--tint)' }}
+          />
+        </div>
+      </div>
+
+      {/* 1B. PPT Submissions Controls Card */}
+      <div className="admin-card" style={{ padding: '24px', marginBottom: '24px', borderLeft: '4px solid var(--accent, #b44a22)' }}>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ink)', marginBottom: '4px' }}>
+          PPT Submissions Status &amp; Deadline
+        </h2>
+        <p style={{ fontSize: '12px', color: '#6a594d', marginBottom: '16px' }}>
+          Manage pitch deck submissions on <code>thinkmit.tech/submissions</code>.
+        </p>
+
+        {/* Master PPT Open / Closed Switch */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid #f0eee6', marginBottom: '16px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 500, color: 'var(--ink)' }}>
+              PPT Submissions Open
+            </div>
+            <p style={{ fontSize: '12px', color: '#6a594d', marginTop: '2px' }}>
+              When toggled off, participants cannot upload presentations on <code>/submissions</code> and the submission API returns 403.
+            </p>
+          </div>
+          <input
+            type="checkbox"
+            checked={pptIsOpen}
+            onChange={(e) => setPptIsOpen(e.target.checked)}
+            style={{ width: '22px', height: '22px', cursor: 'pointer' }}
+          />
+        </div>
+
+        {/* Deadline Display Label */}
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#555', marginBottom: '6px' }}>
+            Deadline Mention / Display Label
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. November 25, 2026, 11:59 PM IST"
+            value={pptDeadlineLabel}
+            onChange={(e) => setPptDeadlineLabel(e.target.value)}
+            style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '8px', border: '1px solid var(--tint)' }}
+          />
+          <p style={{ fontSize: '11px', color: '#7a6a5d', marginTop: '4px' }}>
+            This text is displayed prominently to participants on the <code>/submissions</code> page.
+          </p>
+        </div>
+
+        {/* Automatic Deadline Cutoff Picker */}
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#555', marginBottom: '6px' }}>
+            Automatic Cutoff Timestamp (Optional)
+          </label>
+          <input
+            type="datetime-local"
+            value={pptDeadline}
+            onChange={(e) => setPptDeadline(e.target.value)}
+            style={{ padding: '8px 12px', fontSize: '13px', borderRadius: '8px', border: '1px solid var(--tint)', background: 'var(--surface)' }}
+          />
+          <p style={{ fontSize: '11px', color: '#7a6a5d', marginTop: '4px' }}>
+            If set, PPT submissions will automatically lock and block uploads after this time.
+          </p>
+        </div>
+
+        {/* PPT Closed Message */}
+        <div>
+          <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#555', marginBottom: '6px' }}>
+            Closed State Message (Shown when PPT submissions are closed)
+          </label>
+          <textarea
+            rows={2}
+            value={pptClosedMessage}
+            onChange={(e) => setPptClosedMessage(e.target.value)}
             style={{ width: '100%', padding: '8px 12px', fontSize: '13px', borderRadius: '8px', border: '1px solid var(--tint)' }}
           />
         </div>
