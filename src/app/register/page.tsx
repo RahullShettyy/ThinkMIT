@@ -25,10 +25,30 @@ export default async function RegisterPage() {
               Register Your Team
             </h1>
             <p className="lead rv" style={{ '--d': 2 } as React.CSSProperties}>
+              <strong>This event is strictly open only for Maharaja Institute of Technology Mysore (MITM) college students.</strong>{' '}
               {regState.deadlineLabel
                 ? `Submission deadline: ${regState.deadlineLabel}. Form a team of three and submit your idea.`
                 : 'Form a team of exactly three members and pitch your campus solution.'}
             </p>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                background: 'rgba(180, 74, 34, 0.08)',
+                border: '1.5px solid var(--accent, #b44a22)',
+                borderRadius: '999px',
+                padding: '6px 18px',
+                marginTop: '12px',
+                fontSize: '13px',
+                color: 'var(--ink)',
+              }}
+            >
+              <span>🎓</span>
+              <span>
+                Restricted <strong>only for Maharaja Institute of Technology Mysore</strong> students (USN starting with <strong>4MH</strong>).
+              </span>
+            </div>
           </div>
 
           <RegisterForm content={content} />

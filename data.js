@@ -72,10 +72,10 @@ const siteData = {
     whatsappGroupUrl:
       "https://chat.whatsapp.com/JrRCX2alfSp5WqYGNBgxuD?s=cl&p=a&iam=2",
     consentText:
-      "I confirm that all details are accurate, the idea is original, and all three team members agree to follow the event guidelines.",
+      "I confirm that all details are accurate, the idea is original, all three team members are enrolled students of Maharaja Institute of Technology Mysore, and we agree to follow the event guidelines.",
     validation: {
       // Change these without touching code. Applied on client AND server.
-      usnRegex: "^[A-Za-z0-9]{10}$", // 10 alphanumeric chars (VTU style). Tighten later if needed
+      usnRegex: "^4[mM][hH][A-Za-z0-9]{7}$", // 10 alphanumeric chars starting with 4MH (Maharaja Institute of Technology Mysore VTU format)
       phoneRegex: "^[6-9][0-9]{9}$", // Indian 10-digit mobile
       emailDomainAllowList: [], // e.g. ["mitmysore.in"] ; empty = any email
       teamNameMin: 3,
@@ -118,7 +118,7 @@ const siteData = {
     // Applies to Member 1 (Team Leader), Member 2 and Member 3
     member: {
       name: { label: "Full Name", placeholder: "As per college records", required: true },
-      usn: { label: "USN", placeholder: "e.g. 4MH23CS001", required: true },
+      usn: { label: "USN (Must start with 4MH)", placeholder: "e.g. 4MH23CS001", required: true, help: "Restricted to Maharaja Institute of Technology Mysore students only" },
       email: { label: "Email ID", placeholder: "name@example.com", required: true },
       phone: { label: "Contact Number", placeholder: "10-digit mobile number", required: true },
       role: {

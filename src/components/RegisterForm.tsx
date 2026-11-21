@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import type { SiteContent } from '@/lib/content';
 import { getRegistrationState } from '@/lib/registration-state';
@@ -80,6 +80,70 @@ export default function RegisterForm({
     return `sub_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   });
   const [draftLoaded, setDraftLoaded] = useState(false);
+
+  // Modal state for non-4MH USN alert
+  const [usnAlertModal, setUsnAlertModal] = useState<{
+    isOpen: boolean;
+    enteredUsn: string;
+    memberIndex: number;
+    memberName: string;
+  } | null>(null);
+
+  const closeUsnAlertModal = useCallback(() => {
+    if (usnAlertModal) {
+      const idx = usnAlertModal.memberIndex;
+      setUsnAlertModal(null);
+      setTimeout(() => {
+        const el = document.querySelector(`[name="members.${idx}.usn"]`) as HTMLInputElement | null;
+        if (el) {
+          el.focus();
+          el.select();
+        }
+      }, 50);
+    } else {
+      setUsnAlertModal(null);
+    }
+  }, [usnAlertModal]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && usnAlertModal?.isOpen) {
+        closeUsnAlertModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [usnAlertModal, closeUsnAlertModal]);
+
+  const handleUsnBlur = (idx: number) => {
+    const val = formData.members[idx].usn.trim().toUpperCase();
+    if (!val) return;
+
+    if (!val.startsWith('4MH')) {
+      setErrors((prev) => ({
+        ...prev,
+        [`members.${idx}.usn`]:
+          'Registration is restricted only for Maharaja Institute of Technology Mysore students (USN must start with 4MH).',
+      }));
+      setUsnAlertModal({
+        isOpen: true,
+        enteredUsn: val,
+        memberIndex: idx,
+        memberName: formData.members[idx].name.trim() || form.memberTitles[idx],
+      });
+    } else if (val.length !== 10) {
+      setErrors((prev) => ({
+        ...prev,
+        [`members.${idx}.usn`]: 'Invalid USN (must be 10 alphanumeric characters, e.g. 4MH23CS001).',
+      }));
+    } else {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[`members.${idx}.usn`];
+        return next;
+      });
+    }
+  };
 
   // Restore draft from localStorage
   useEffect(() => {
@@ -164,23 +228,49 @@ export default function RegisterForm({
     }
 
     if (step === 1) {
-      const usnRegex = new RegExp(val.usnRegex || '^[A-Za-z0-9]{10}$');
+      const usnRegex = new RegExp(val.usnRegex || '^4[mM][hH][A-Za-z0-9]{7}$');
       const phoneRegex = new RegExp(val.phoneRegex || '^[6-9][0-9]{9}$');
       const usns = new Set<string>();
       const emails = new Set<string>();
+      let firstInvalidUsnMember: { idx: number; usn: string; name: string } | null = null;
 
-      formData.members.forEach((m, idx) => {
+      for (let idx = 0; idx < formData.members.length; idx++) {
+        const m = formData.members[idx];
         if (!m.name.trim()) {
           newErrors[`members.${idx}.name`] = 'Full name is required';
         }
-        if (!m.usn.trim()) {
+        const trimmedUsn = m.usn.trim().toUpperCase();
+        if (!trimmedUsn) {
           newErrors[`members.${idx}.usn`] = 'USN is required';
-        } else if (!usnRegex.test(m.usn.trim())) {
-          newErrors[`members.${idx}.usn`] = 'Invalid USN (must be 10 alphanumeric characters)';
-        } else if (usns.has(m.usn.trim().toUpperCase())) {
+        } else if (!trimmedUsn.startsWith('4MH')) {
+          newErrors[`members.${idx}.usn`] =
+            'Registration is restricted only for Maharaja Institute of Technology Mysore students (USN must start with 4MH).';
+          if (!firstInvalidUsnMember) {
+            firstInvalidUsnMember = {
+              idx,
+              usn: trimmedUsn,
+              name: m.name.trim() || form.memberTitles[idx],
+            };
+          }
+        } else if (trimmedUsn.length !== 10 || !usnRegex.test(trimmedUsn)) {
+          newErrors[`members.${idx}.usn`] =
+            'Invalid USN (must be 10 characters starting with 4MH, e.g. 4MH23CS001)';
+        } else if (usns.has(trimmedUsn)) {
           newErrors[`members.${idx}.usn`] = 'Duplicate USN inside the team';
         }
-        usns.add(m.usn.trim().toUpperCase());
+        usns.add(trimmedUsn);
+      }
+
+      if (firstInvalidUsnMember) {
+        setUsnAlertModal({
+          isOpen: true,
+          enteredUsn: firstInvalidUsnMember.usn,
+          memberIndex: firstInvalidUsnMember.idx,
+          memberName: firstInvalidUsnMember.name,
+        });
+      }
+
+      formData.members.forEach((m, idx) => {
 
         if (!m.email.trim()) {
           newErrors[`members.${idx}.email`] = 'Email is required';
@@ -504,6 +594,28 @@ export default function RegisterForm({
       )}
 
       <form onSubmit={handleSubmit} className="form-card" noValidate>
+        {/* College Eligibility Notice Banner */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(200, 85, 61, 0.08), rgba(192, 122, 22, 0.08))',
+            border: '1.5px solid rgba(200, 85, 61, 0.3)',
+            borderRadius: '14px',
+            padding: '12px 16px',
+            marginBottom: '24px',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px',
+          }}
+        >
+          <span style={{ fontSize: '20px', lineHeight: 1 }}>🎓</span>
+          <div style={{ fontSize: '13px', color: '#2a1a12', lineHeight: '1.5' }}>
+            <strong style={{ color: '#b0412c', display: 'block', marginBottom: '2px', fontSize: '13.5px' }}>
+              College Eligibility Notice
+            </strong>
+            This event is strictly restricted <strong>only for Maharaja Institute of Technology Mysore (MITM)</strong> college students. Every member must enter a valid college USN starting with <strong>4MH</strong>.
+          </div>
+        </div>
+
         {/* STEP 1: Team & Domain */}
         {currentStep === 0 && (
           <div>
@@ -579,7 +691,10 @@ export default function RegisterForm({
             <h3 style={{ fontSize: '20px', fontWeight: 400, marginBottom: '8px' }}>
               2. Team Members (Exactly 3)
             </h3>
-            <p style={{ fontSize: '13px', color: '#6a594d', marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: '#6a594d', marginBottom: '20px', lineHeight: '1.5' }}>
+              <span style={{ display: 'block', marginBottom: '6px' }}>
+                <strong>Notice: Registrations are strictly restricted only for Maharaja Institute of Technology Mysore college students.</strong> All 3 team members must be enrolled students of <strong>Maharaja Institute of Technology Mysore</strong> and enter a valid college USN starting with <strong>4MH</strong>.
+              </span>
               Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. All UG (1st, 2nd, 3rd, 4th Year), MBA, MCA, and M.Tech students are eligible, and interdisciplinary teams across departments are allowed and encouraged.
             </p>
 
@@ -610,18 +725,25 @@ export default function RegisterForm({
                   </div>
 
                   <div className={`form-group ${errors[`members.${idx}.usn`] ? 'has-error' : ''}`}>
-                    <label>{form.member.usn.label} *</label>
+                    <label htmlFor={`member-usn-${idx}`}>{form.member.usn.label} *</label>
                     <input
+                      id={`member-usn-${idx}`}
                       name={`members.${idx}.usn`}
                       type="text"
                       placeholder={form.member.usn.placeholder}
                       value={member.usn}
+                      onBlur={() => handleUsnBlur(idx)}
                       onChange={(e) => {
                         const members = [...formData.members] as [MemberData, MemberData, MemberData];
                         members[idx].usn = e.target.value.toUpperCase();
                         setFormData({ ...formData, members });
                       }}
+                      maxLength={10}
+                      autoComplete="off"
                     />
+                    <div style={{ fontSize: '11px', color: '#8a7a6e', marginTop: '4px' }}>
+                      Restricted to <strong>Maharaja Institute of Technology Mysore</strong> (Must start with <strong>4MH</strong>)
+                    </div>
                     {errors[`members.${idx}.usn`] && (
                       <div className="field-error">{errors[`members.${idx}.usn`]}</div>
                     )}
@@ -990,6 +1112,194 @@ export default function RegisterForm({
           )}
         </div>
       </form>
+
+      {/* Non-4MH USN Alert Modal */}
+      {usnAlertModal?.isOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="usn-modal-title"
+          aria-describedby="usn-modal-desc"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(42, 26, 18, 0.7)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            display: 'grid',
+            placeItems: 'center',
+            zIndex: 99999,
+            padding: '16px',
+            animation: 'fadeIn 0.2s ease',
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              closeUsnAlertModal();
+            }
+          }}
+        >
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '520px',
+              background: '#fbf8f3',
+              border: '1.5px solid rgba(200, 85, 61, 0.3)',
+              borderRadius: '24px',
+              boxShadow: '0 24px 64px rgba(42, 26, 18, 0.35)',
+              padding: '30px 26px',
+              position: 'relative',
+              outline: 'none',
+              animation: 'slideUp 0.25s ease',
+            }}
+          >
+            {/* Close button (X) */}
+            <button
+              type="button"
+              onClick={closeUsnAlertModal}
+              aria-label="Close dialog"
+              style={{
+                position: 'absolute',
+                top: '18px',
+                right: '18px',
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                border: '1px solid rgba(59, 33, 22, 0.15)',
+                background: '#fff',
+                cursor: 'pointer',
+                display: 'grid',
+                placeItems: 'center',
+                color: '#6a594d',
+                fontSize: '18px',
+                lineHeight: 1,
+                transition: 'all 0.15s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f0eae1';
+                e.currentTarget.style.color = 'var(--ink)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.color = '#6a594d';
+              }}
+            >
+              ×
+            </button>
+
+            {/* Icon & Badge */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <div
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '12px',
+                  background: 'rgba(200, 85, 61, 0.12)',
+                  border: '1px solid rgba(200, 85, 61, 0.25)',
+                  display: 'grid',
+                  placeItems: 'center',
+                  fontSize: '22px',
+                }}
+              >
+                🎓
+              </div>
+              <div>
+                <span
+                  style={{
+                    display: 'inline-block',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    letterSpacing: '.06em',
+                    textTransform: 'uppercase',
+                    color: '#b0412c',
+                    background: 'rgba(200, 85, 61, 0.1)',
+                    padding: '3px 10px',
+                    borderRadius: '999px',
+                  }}
+                >
+                  Eligibility Restriction
+                </span>
+                <div style={{ fontSize: '11.5px', color: '#8a7a6e', marginTop: '2px' }}>
+                  Maharaja Institute of Technology Mysore
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3
+              id="usn-modal-title"
+              style={{
+                fontSize: '20px',
+                fontWeight: 600,
+                color: 'var(--ink)',
+                marginBottom: '12px',
+                lineHeight: '1.3',
+              }}
+            >
+              Restricted to MIT Mysore Students Only
+            </h3>
+
+            {/* Polite message body */}
+            <div
+              id="usn-modal-desc"
+              style={{
+                fontSize: '13.5px',
+                color: '#5b4a3f',
+                lineHeight: '1.6',
+                marginBottom: '20px',
+              }}
+            >
+              <p style={{ marginBottom: '12px' }}>
+                You entered{' '}
+                <code
+                  style={{
+                    background: 'rgba(200, 85, 61, 0.12)',
+                    color: '#b0412c',
+                    padding: '2px 7px',
+                    borderRadius: '6px',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                  }}
+                >
+                  {usnAlertModal.enteredUsn}
+                </code>{' '}
+                for <strong>{usnAlertModal.memberName}</strong>.
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                Please note that <strong>THINK MIT</strong> is an internal campus innovation challenge open{' '}
+                <strong style={{ color: '#b0412c' }}>
+                  strictly only for students of Maharaja Institute of Technology Mysore (MITM)
+                </strong>
+                .
+              </p>
+              <p style={{ marginBottom: '12px' }}>
+                All student USNs at <strong>Maharaja Institute of Technology Mysore</strong> uniquely begin with{' '}
+                <strong>4MH</strong> (for example: <em>4MH23CS001</em>).
+              </p>
+              <p style={{ fontSize: '12.5px', color: '#8a7a6e', fontStyle: 'italic', margin: 0 }}>
+                If you are an MIT Mysore student, please re-enter your official 4MH USN. If you are from another college, we sincerely appreciate your interest, but registrations are strictly reserved for MIT Mysore students only.
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', borderTop: '1px solid rgba(59, 33, 22, 0.1)', paddingTop: '16px' }}>
+              <button
+                type="button"
+                className="btn-dark"
+                onClick={closeUsnAlertModal}
+                style={{
+                  padding: '10px 22px',
+                  fontSize: '13.5px',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Understood, I&apos;ll enter my 4MH USN
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
