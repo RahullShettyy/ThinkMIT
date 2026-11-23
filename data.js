@@ -118,7 +118,7 @@ const siteData = {
     // Applies to Member 1 (Team Leader), Member 2 and Member 3
     member: {
       name: { label: "Full Name", placeholder: "As per college records", required: true },
-      usn: { label: "USN (Must start with 4MH)", placeholder: "e.g. 4MH23CS001", required: true, help: "Restricted to Maharaja Institute of Technology Mysore students only" },
+      usn: { label: "USN", placeholder: "e.g. 4MH23CS001", required: true, help: "Restricted to Maharaja Institute of Technology Mysore students only" },
       email: { label: "Email ID", placeholder: "name@example.com", required: true },
       phone: { label: "Contact Number", placeholder: "10-digit mobile number", required: true },
       role: {

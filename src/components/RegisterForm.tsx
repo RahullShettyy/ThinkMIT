@@ -594,27 +594,6 @@ export default function RegisterForm({
       )}
 
       <form onSubmit={handleSubmit} className="form-card" noValidate>
-        {/* College Eligibility Notice Banner */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, rgba(200, 85, 61, 0.08), rgba(192, 122, 22, 0.08))',
-            border: '1.5px solid rgba(200, 85, 61, 0.3)',
-            borderRadius: '14px',
-            padding: '12px 16px',
-            marginBottom: '24px',
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-          }}
-        >
-          <span style={{ fontSize: '20px', lineHeight: 1 }}>🎓</span>
-          <div style={{ fontSize: '13px', color: '#2a1a12', lineHeight: '1.5' }}>
-            <strong style={{ color: '#b0412c', display: 'block', marginBottom: '2px', fontSize: '13.5px' }}>
-              College Eligibility Notice
-            </strong>
-            This event is strictly restricted <strong>only for Maharaja Institute of Technology Mysore (MITM)</strong> college students. Every member must enter a valid college USN starting with <strong>4MH</strong>.
-          </div>
-        </div>
 
         {/* STEP 1: Team & Domain */}
         {currentStep === 0 && (
@@ -692,10 +671,7 @@ export default function RegisterForm({
               2. Team Members (Exactly 3)
             </h3>
             <p style={{ fontSize: '13px', color: '#6a594d', marginBottom: '20px', lineHeight: '1.5' }}>
-              <span style={{ display: 'block', marginBottom: '6px' }}>
-                <strong>Notice: Registrations are strictly restricted only for Maharaja Institute of Technology Mysore college students.</strong> All 3 team members must be enrolled students of <strong>Maharaja Institute of Technology Mysore</strong> and enter a valid college USN starting with <strong>4MH</strong>.
-              </span>
-              Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. All UG (1st, 2nd, 3rd, 4th Year), MBA, MCA, and M.Tech students are eligible, and interdisciplinary teams across departments are allowed and encouraged.
+              Member 1 is designated as the Team Leader. Each member must present one distinct category: Business, Innovation, or Technical. All UG (1st, 2nd, 3rd, 4th Year), MBA, MCA, and M.Tech students of MITM are eligible, and interdisciplinary teams across departments are allowed and encouraged.
             </p>
 
             {formData.members.map((member, idx) => (
@@ -741,9 +717,7 @@ export default function RegisterForm({
                       maxLength={10}
                       autoComplete="off"
                     />
-                    <div style={{ fontSize: '11px', color: '#8a7a6e', marginTop: '4px' }}>
-                      Restricted to <strong>Maharaja Institute of Technology Mysore</strong> (Must start with <strong>4MH</strong>)
-                    </div>
+
                     {errors[`members.${idx}.usn`] && (
                       <div className="field-error">{errors[`members.${idx}.usn`]}</div>
                     )}
