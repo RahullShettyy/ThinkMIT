@@ -81,7 +81,7 @@ export default function RegisterForm({
   });
   const [draftLoaded, setDraftLoaded] = useState(false);
 
-  // Modal state for non-4MH USN alert
+  // Modal state for USNs outside the MIT Mysore formats
   const [usnAlertModal, setUsnAlertModal] = useState<{
     isOpen: boolean;
     enteredUsn: string;
@@ -118,12 +118,15 @@ export default function RegisterForm({
   const handleUsnBlur = (idx: number) => {
     const val = formData.members[idx].usn.trim().toUpperCase();
     if (!val) return;
+    const usnRegex = new RegExp(
+      registration.validation.usnRegex || '^(?:4MH|MIT)[A-Za-z0-9]{7}$'
+    );
 
-    if (!val.startsWith('4MH')) {
+    if (!val.startsWith('4MH') && !val.startsWith('MIT')) {
       setErrors((prev) => ({
         ...prev,
         [`members.${idx}.usn`]:
-          'Registration is restricted only for Maharaja Institute of Technology Mysore students (USN must start with 4MH).',
+          'USN must start with 4MH or MIT.',
       }));
       setUsnAlertModal({
         isOpen: true,
@@ -131,10 +134,10 @@ export default function RegisterForm({
         memberIndex: idx,
         memberName: formData.members[idx].name.trim() || form.memberTitles[idx],
       });
-    } else if (val.length !== 10) {
+    } else if (val.length !== 10 || !usnRegex.test(val)) {
       setErrors((prev) => ({
         ...prev,
-        [`members.${idx}.usn`]: 'Invalid USN (must be 10 alphanumeric characters, e.g. 4MH23CS001).',
+        [`members.${idx}.usn`]: 'Invalid USN (must be 10 alphanumeric characters, e.g. 4MH23CS001 or MIT26EC076).',
       }));
     } else {
       setErrors((prev) => {
@@ -228,7 +231,7 @@ export default function RegisterForm({
     }
 
     if (step === 1) {
-      const usnRegex = new RegExp(val.usnRegex || '^4[mM][hH][A-Za-z0-9]{7}$');
+      const usnRegex = new RegExp(val.usnRegex || '^(?:4MH|MIT)[A-Za-z0-9]{7}$');
       const phoneRegex = new RegExp(val.phoneRegex || '^[6-9][0-9]{9}$');
       const usns = new Set<string>();
       const emails = new Set<string>();
@@ -242,9 +245,9 @@ export default function RegisterForm({
         const trimmedUsn = m.usn.trim().toUpperCase();
         if (!trimmedUsn) {
           newErrors[`members.${idx}.usn`] = 'USN is required';
-        } else if (!trimmedUsn.startsWith('4MH')) {
+        } else if (!trimmedUsn.startsWith('4MH') && !trimmedUsn.startsWith('MIT')) {
           newErrors[`members.${idx}.usn`] =
-            'Registration is restricted only for Maharaja Institute of Technology Mysore students (USN must start with 4MH).';
+            'USN must start with 4MH or MIT.';
           if (!firstInvalidUsnMember) {
             firstInvalidUsnMember = {
               idx,
@@ -254,7 +257,7 @@ export default function RegisterForm({
           }
         } else if (trimmedUsn.length !== 10 || !usnRegex.test(trimmedUsn)) {
           newErrors[`members.${idx}.usn`] =
-            'Invalid USN (must be 10 characters starting with 4MH, e.g. 4MH23CS001)';
+            'Invalid USN (must be 10 characters starting with 4MH or MIT, e.g. 4MH23CS001 or MIT26EC076)';
         } else if (usns.has(trimmedUsn)) {
           newErrors[`members.${idx}.usn`] = 'Duplicate USN inside the team';
         }
@@ -1087,7 +1090,7 @@ export default function RegisterForm({
         </div>
       </form>
 
-      {/* Non-4MH USN Alert Modal */}
+      {/* Unrecognized USN Alert Modal */}
       {usnAlertModal?.isOpen && (
         <div
           role="dialog"
@@ -1246,11 +1249,11 @@ export default function RegisterForm({
                 .
               </p>
               <p style={{ marginBottom: '12px' }}>
-                All student USNs at <strong>Maharaja Institute of Technology Mysore</strong> uniquely begin with{' '}
-                <strong>4MH</strong> (for example: <em>4MH23CS001</em>).
+                MIT Mysore USNs begin with <strong>4MH</strong> or, for some first-year students awaiting a permanent USN,
+                {' '}<strong>MIT</strong> (for example: <em>4MH23CS001</em> or <em>MIT26EC076</em>). Both formats are accepted.
               </p>
               <p style={{ fontSize: '12.5px', color: '#8a7a6e', fontStyle: 'italic', margin: 0 }}>
-                If you are an MIT Mysore student, please re-enter your official 4MH USN. If you are from another college, we sincerely appreciate your interest, but registrations are strictly reserved for MIT Mysore students only.
+                If you are an MIT Mysore student, please re-enter your official 4MH USN or temporary MIT USN. If you are from another college, we appreciate your interest, but registrations are reserved for MIT Mysore students only.
               </p>
             </div>
 
@@ -1268,7 +1271,7 @@ export default function RegisterForm({
                   fontWeight: 600,
                 }}
               >
-                Understood, I&apos;ll enter my 4MH USN
+                Understood, I&apos;ll enter my MIT Mysore USN
               </button>
             </div>
           </div>

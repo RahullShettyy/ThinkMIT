@@ -23,11 +23,11 @@ export function buildRegistrationSchema(content: SiteContent) {
       .string()
       .trim()
       .transform((val) => val.toUpperCase())
-      .refine((val) => val.startsWith('4MH'), {
-        message: 'Registration is restricted only for Maharaja Institute of Technology Mysore college students. USN must start with 4MH.',
+      .refine((val) => val.startsWith('4MH') || val.startsWith('MIT'), {
+        message: 'USN must start with 4MH or MIT.',
       })
       .refine((val) => usnRegex.test(val), {
-        message: 'Invalid USN format (must be 10 alphanumeric characters starting with 4MH, e.g. 4MH23CS001)',
+        message: 'Invalid USN format (must be 10 alphanumeric characters starting with 4MH or MIT, e.g. 4MH23CS001 or MIT26EC076)',
       }),
     email: z
       .string()

@@ -11,7 +11,7 @@ async function runEdgeCaseTests() {
   // 1. Unicode, Kannada & Emoji names
   const validUnicodePayload = {
     team_name: 'ಆವಿಷ್ಕಾರ ತಂಡ 🚀',
-    track_key: 'track-1',
+    track_key: 'waste-to-wealth',
     members: [
       {
         name: 'ಪ್ರವೀಣ್ ಕುಮಾರ್ 💡',
@@ -108,6 +108,30 @@ async function runEdgeCaseTests() {
   const usnResult = schema.safeParse(invalidUsnPayload);
   assert.strictEqual(usnResult.success, false, 'Invalid USN must fail validation');
   console.log('✓ 10-character alphanumeric USN constraint verified');
+
+  // 4b. Official and temporary MITM USN prefixes
+  const temporaryUsnPayload = {
+    ...validUnicodePayload,
+    members: [
+      { ...validUnicodePayload.members[0], usn: 'MIT26EC076' },
+      validUnicodePayload.members[1],
+      validUnicodePayload.members[2],
+    ],
+  };
+  const temporaryUsnResult = schema.safeParse(temporaryUsnPayload);
+  assert.strictEqual(temporaryUsnResult.success, true, 'Temporary MIT USN must be accepted');
+
+  const outsideCollegeUsnPayload = {
+    ...validUnicodePayload,
+    members: [
+      { ...validUnicodePayload.members[0], usn: '1RV26EC076' },
+      validUnicodePayload.members[1],
+      validUnicodePayload.members[2],
+    ],
+  };
+  const outsideCollegeUsnResult = schema.safeParse(outsideCollegeUsnPayload);
+  assert.strictEqual(outsideCollegeUsnResult.success, false, 'USNs outside 4MH/MIT prefixes must fail');
+  console.log('✓ Official 4MH and temporary MIT USN prefixes verified');
 
   // 5. Invalid Phone (not 10 digits starting with 6-9)
   const invalidPhonePayload = {
