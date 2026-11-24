@@ -131,6 +131,17 @@ async function runEdgeCaseTests() {
   };
   const outsideCollegeUsnResult = schema.safeParse(outsideCollegeUsnPayload);
   assert.strictEqual(outsideCollegeUsnResult.success, false, 'USNs outside 4MH/MIT prefixes must fail');
+
+  const longTemporaryUsnPayload = {
+    ...validUnicodePayload,
+    members: [
+      { ...validUnicodePayload.members[0], usn: 'MIT123456789012' },
+      validUnicodePayload.members[1],
+      validUnicodePayload.members[2],
+    ],
+  };
+  const longTemporaryUsnResult = schema.safeParse(longTemporaryUsnPayload);
+  assert.strictEqual(longTemporaryUsnResult.success, false, 'MIT temporary USNs longer than 12 characters must fail');
   console.log('✓ Official 4MH and temporary MIT USN prefixes verified');
 
   // 5. Invalid Phone (not 10 digits starting with 6-9)

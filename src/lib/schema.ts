@@ -26,8 +26,13 @@ export function buildRegistrationSchema(content: SiteContent) {
       .refine((val) => val.startsWith('4MH') || val.startsWith('MIT'), {
         message: 'USN must start with 4MH or MIT.',
       })
-      .refine((val) => usnRegex.test(val), {
-        message: 'Invalid USN format (must be 10 alphanumeric characters starting with 4MH or MIT, e.g. 4MH23CS001 or MIT26EC076)',
+      .refine((val) => {
+        if (val.startsWith('4MH')) {
+          return val.length === 10 && usnRegex.test(val);
+        }
+        return val.length <= 12;
+      }, {
+        message: 'Invalid USN format: 4MH USNs must be 10 characters; MIT temporary USNs must be at most 12 characters.',
       }),
     email: z
       .string()

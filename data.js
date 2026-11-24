@@ -75,7 +75,7 @@ const siteData = {
       "I confirm that all details are accurate, the idea is original, all three team members are enrolled students of Maharaja Institute of Technology Mysore, and we agree to follow the event guidelines.",
     validation: {
       // Change these without touching code. Applied on client AND server.
-      usnRegex: "^(?:4MH|MIT)[A-Za-z0-9]{7}$", // 10 alphanumeric chars starting with 4MH or the temporary MIT format
+      usnRegex: "^4MH[A-Za-z0-9]{7}$", // 4MH: exactly 10 characters; MIT temporary USNs are checked only by prefix and maximum length
       phoneRegex: "^[6-9][0-9]{9}$", // Indian 10-digit mobile
       emailDomainAllowList: [], // e.g. ["mitmysore.in"] ; empty = any email
       teamNameMin: 3,
@@ -118,7 +118,7 @@ const siteData = {
     // Applies to Member 1 (Team Leader), Member 2 and Member 3
     member: {
       name: { label: "Full Name", placeholder: "As per college records", required: true },
-      usn: { label: "USN", placeholder: "e.g. 4MH23CS001 or MIT26EC076", required: true, help: "Use your official 4MH USN or temporary MIT USN" },
+      usn: { label: "USN", placeholder: "4MH or MIT", required: true, help: "Use your official 4MH USN or temporary MIT USN" },
       email: { label: "Email ID", placeholder: "name@example.com", required: true },
       phone: { label: "Contact Number", placeholder: "10-digit mobile number", required: true },
       role: {
